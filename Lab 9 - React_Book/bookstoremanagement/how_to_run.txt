@@ -1,0 +1,6 @@
+1. backend/ node index.js
+2. frontend/ npm start
+
+
+username: test123@email.com
+password: test123
