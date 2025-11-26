@@ -1,0 +1,13 @@
+1. Open XAAMP Server and run apache and mysql
+2. In result-service (PS E:\Data\project\result-service>) run this : .\mvnw.cmd spring-boot:run
+3. PS E:\VIT PUNE '27\T.Y - SEM 1\Comp Network Tech\Lab\08_LAB2\college-frontend> npm run dev               
+
+> result-calculator@0.0.0 dev
+> vite
+
+
+  VITE v7.1.6  ready in 1807 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help

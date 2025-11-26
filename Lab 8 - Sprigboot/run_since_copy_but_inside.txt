@@ -1,0 +1,64 @@
+Yes, copying to a new folder is okay in most cases. It will only give errors if paths/ports/configs inside the projects still point to the old locations, but usually Maven + Node projects work fine after moving.[1][4]
+
+## Folder setup idea
+
+Do this to keep things clear:
+
+- Create one parent folder, for example: `E:\college-project\`
+- Inside it, put:
+  - `result-service`  (backend Spring Boot project)
+  - `college-frontend` (frontend Vite/React project)
+- Do NOT mix their files into one single project folder; keep them as two separate subfolders. This matches the commands your teacher gave.[4]
+
+So your paths would be something like:
+- `E:\college-project\result-service\`
+- `E:\college-project\college-frontend\`
+
+## Step 1 – Start XAMPP
+
+- Open XAMPP Control Panel.
+- Click “Start” for Apache.
+- Click “Start” for MySQL.
+- Make sure there are no port conflicts (for example with IIS, Skype, etc.).[1][4]
+
+## Step 2 – Run result-service (backend)
+
+1) Open a terminal/PowerShell.  
+2) Go to the result-service folder (update the path to your new location), for example:
+
+- `cd "E:\college-project\result-service"`
+
+3) Run the Spring Boot app:
+
+- `.\mvnw.cmd spring-boot:run`
+
+This uses the wrapper inside that folder, so the folder path must be correct and must contain `mvnw.cmd`, `pom.xml`, and the `src` folder.[4]
+
+If you get an error after moving:
+
+- If the error says “mvnw.cmd not found”, you are in the wrong folder.
+- If the error is about database connection (for example cannot connect to MySQL), check:
+  - `application.properties` or `application.yml` inside `src/main/resources/`
+  - Confirm that the DB name, user, and password exist in XAMPP’s MySQL.[1][4]
+
+## Step 3 – Run college-frontend (frontend)
+
+1) Open a second terminal/PowerShell.  
+2) Go to the frontend folder:
+
+- `cd "E:\college-project\college-frontend"`
+
+3) Install dependencies once (if `node_modules` got deleted or this is a fresh copy):
+
+- `npm install`
+
+4) Start dev server:
+
+- `npm run dev`
+
+Vite will show something like:
+
+- Local: http://localhost:5173/
+
+Open that URL in the browser.[4]
+
