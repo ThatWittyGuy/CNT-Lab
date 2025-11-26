@@ -1,0 +1,16 @@
+FOR HELLO:
+
+javac Server.java Client.java
+
+terminal 1: java Server
+terminal 2: java Client
+
+
+For File Transfer
+
+"set path correctly: for t.txt"
+
+in terminal 1: javac Server.java
+               java Server
+in terminal 2: javac Client.java
+               java Client
