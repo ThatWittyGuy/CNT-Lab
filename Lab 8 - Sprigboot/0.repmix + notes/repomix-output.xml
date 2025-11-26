@@ -1,0 +1,4797 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend_db_php/backend/config.php
+backend_db_php/backend/get_results.php
+backend_db_php/backend/save_results.php
+backend_db_php/college_results.sql
+backend_db_php/frontend/.gitignore
+backend_db_php/frontend/package.json
+backend_db_php/frontend/public/favicon.ico
+backend_db_php/frontend/public/index.html
+backend_db_php/frontend/public/logo192.png
+backend_db_php/frontend/public/logo512.png
+backend_db_php/frontend/public/manifest.json
+backend_db_php/frontend/public/robots.txt
+backend_db_php/frontend/README.md
+backend_db_php/frontend/src/App.css
+backend_db_php/frontend/src/App.js
+backend_db_php/frontend/src/App.test.js
+backend_db_php/frontend/src/index.css
+backend_db_php/frontend/src/index.js
+backend_db_php/frontend/src/logo.svg
+backend_db_php/frontend/src/reportWebVitals.js
+backend_db_php/frontend/src/setupTests.js
+college-frontend/.gitignore
+college-frontend/eslint.config.js
+college-frontend/HOW+TO+RUN.md
+college-frontend/index.html
+college-frontend/package.json
+college-frontend/public/vite.svg
+college-frontend/README.md
+college-frontend/repomix-output.xml
+college-frontend/src/App.css
+college-frontend/src/App.jsx
+college-frontend/src/App2.jsx
+college-frontend/src/assets/react.svg
+college-frontend/src/index_old.css
+college-frontend/src/index.css
+college-frontend/src/main.jsx
+college-frontend/vite.config.js
+result-service/.gitattributes
+result-service/.gitignore
+result-service/.mvn/wrapper/maven-wrapper.properties
+result-service/how_to_run.txt
+result-service/mvnw
+result-service/mvnw.cmd
+result-service/pom.xml
+result-service/src/main/java/com/example/result_service/controller/ResultController.java
+result-service/src/main/java/com/example/result_service/dto/ResultRequest.java
+result-service/src/main/java/com/example/result_service/dto/ResultResponse.java
+result-service/src/main/java/com/example/result_service/model/ResultEntity.java
+result-service/src/main/java/com/example/result_service/repository/ResultRepository.java
+result-service/src/main/java/com/example/result_service/ResultServiceApplication.java
+result-service/src/main/java/com/example/result_service/service/ResultService.java
+result-service/src/main/resources/application.properties
+result-service/src/test/java/com/example/result_service/ResultServiceApplicationTests.java
+VIT-Result-Calculator-—-Vishwakarma-Institute-of-Technology-11-03-2025_11_10_AM.png
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="backend_db_php/backend/config.php">
+<?php
+$host = "localhost";
+$dbname = "college_results";
+$username = "root";  // your MySQL username
+$password = "mysql@password123";  // your MySQL password
+
+try {
+    // Use charset=utf8 to avoid encoding issues
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    // Set error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    // Stop execution and display error message
+    die("Connection failed: " . $e->getMessage());
+}
+?>
+</file>
+
+<file path="backend_db_php/backend/get_results.php">
+<?php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
+
+include "config.php";
+
+try {
+    $stmt = $conn->prepare("SELECT * FROM results");
+    $stmt->execute();
+
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($results);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(["error" => "Database error: " . $e->getMessage()]);
+}
+
+?>
+</file>
+
+<file path="backend_db_php/backend/save_results.php">
+<?php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
+
+include "config.php";
+
+// Decode the JSON input from React frontend
+$data = json_decode(file_get_contents('php://input'), true);
+
+// Extract and sanitize input data
+$student_name = $data['student_name'] ?? "";
+
+$sub1_mid = floatval($data['subject1_midsem']);
+$sub1_end = floatval($data['subject1_endsem']);
+$sub2_mid = floatval($data['subject2_midsem']);
+$sub2_end = floatval($data['subject2_endsem']);
+$sub3_mid = floatval($data['subject3_midsem']);
+$sub3_end = floatval($data['subject3_endsem']);
+$sub4_mid = floatval($data['subject4_midsem']);
+$sub4_end = floatval($data['subject4_endsem']);
+
+// The SQL insert statement with placeholders
+$sql = "INSERT INTO results 
+(student_name, subject1_midsem, subject1_endsem, subject2_midsem, subject2_endsem, subject3_midsem, subject3_endsem, subject4_midsem, subject4_endsem)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+try {
+    // Prepare the SQL statement
+    $stmt = $conn->prepare($sql);
+
+    // Execute with an array of sanitized values
+    $stmt->execute([
+        $student_name, 
+        $sub1_mid, $sub1_end, 
+        $sub2_mid, $sub2_end, 
+        $sub3_mid, $sub3_end, 
+        $sub4_mid, $sub4_end
+    ]);
+
+    // Confirm success to frontend
+    echo json_encode(["message" => "Result saved successfully"]);
+
+} catch (PDOException $e) {
+    // On error, send error message as JSON response
+    http_response_code(500);
+    echo json_encode(["error" => "Failed to save result: " . $e->getMessage()]);
+}
+?>
+</file>
+
+<file path="backend_db_php/college_results.sql">
+CREATE DATABASE IF NOT EXISTS college_results;
+USE college_results;
+
+CREATE TABLE IF NOT EXISTS results (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_name VARCHAR(100),
+  subject1_midsem FLOAT,
+  subject1_endsem FLOAT,
+  subject2_midsem FLOAT,
+  subject2_endsem FLOAT,
+  subject3_midsem FLOAT,
+  subject3_endsem FLOAT,
+  subject4_midsem FLOAT,
+  subject4_endsem FLOAT
+);
+</file>
+
+<file path="backend_db_php/frontend/.gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+</file>
+
+<file path="backend_db_php/frontend/package.json">
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
+</file>
+
+<file path="backend_db_php/frontend/public/index.html">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+</file>
+
+<file path="backend_db_php/frontend/public/manifest.json">
+{
+  "short_name": "React App",
+  "name": "Create React App Sample",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
+</file>
+
+<file path="backend_db_php/frontend/public/robots.txt">
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+</file>
+
+<file path="backend_db_php/frontend/README.md">
+# Getting Started with Create React App
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+</file>
+
+<file path="backend_db_php/frontend/src/App.css">
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</file>
+
+<file path="backend_db_php/frontend/src/App.js">
+import React, { useState, useEffect } from "react";
+
+function App() {
+  const [studentName, setStudentName] = useState("");
+  const [marks, setMarks] = useState({
+    subject1_midsem: "",
+    subject1_endsem: "",
+    subject2_midsem: "",
+    subject2_endsem: "",
+    subject3_midsem: "",
+    subject3_endsem: "",
+    subject4_midsem: "",
+    subject4_endsem: ""
+  });
+
+  const [results, setResults] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/get_results.php")
+      .then(res => res.json())
+      .then(data => setResults(data));
+  }, []);
+
+  const handleChange = (e) => {
+    setMarks({ ...marks, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!studentName) {
+      alert("Enter student name");
+      return;
+    }
+
+    for (let key in marks) {
+      const val = marks[key];
+      if (val === "" || val < 0 || val > 100) {
+        alert("Enter valid marks between 0 and 100");
+        return;
+      }
+    }
+
+    const dataToSend = { student_name: studentName };
+    for (let key in marks) dataToSend[key] = parseFloat(marks[key]);
+
+    fetch("http://localhost:8000/save_result.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataToSend)
+    })
+      .then(res => res.json())
+      .then(() => {
+        setStudentName("");
+        setMarks({
+          subject1_midsem: "",
+          subject1_endsem: "",
+          subject2_midsem: "",
+          subject2_endsem: "",
+          subject3_midsem: "",
+          subject3_endsem: "",
+          subject4_midsem: "",
+          subject4_endsem: ""
+        });
+        return fetch("http://localhost:8000/get_results.php");
+      })
+      .then(res => res.json())
+      .then(data => setResults(data));
+  };
+
+  const calculateCGPA = (result) => {
+    const subjects = [1, 2, 3, 4];
+    let totalWeightedMarks = 0;
+    for (let sub of subjects) {
+      const mid = parseFloat(result[`subject${sub}_midsem`]);
+      const end = parseFloat(result[`subject${sub}_endsem`]);
+      totalWeightedMarks += (mid * 0.3) + (end * 0.7);
+    }
+    const avgPercent = totalWeightedMarks / subjects.length;
+    return (avgPercent / 10).toFixed(2);
+  };
+
+  return (
+    <div style={{ maxWidth: 700, margin: "auto", padding: 20 }}>
+      <h2>College Result Calculator</h2>
+
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Student Name: </label>
+          <input
+            type="text"
+            value={studentName}
+            onChange={e => setStudentName(e.target.value)}
+            required
+          />
+        </div>
+
+        {[1, 2, 3, 4].map(num => (
+          <div key={num} style={{ marginTop: 10 }}>
+            <h4>Subject {num}</h4>
+            <label>Midsem (30% weight): </label>
+            <input
+              type="number"
+              name={`subject${num}_midsem`}
+              value={marks[`subject${num}_midsem`]}
+              onChange={handleChange}
+              min="0"
+              max="100"
+              required
+            />
+            <br />
+            <label>Endsem (70% weight): </label>
+            <input
+              type="number"
+              name={`subject${num}_endsem`}
+              value={marks[`subject${num}_endsem`]}
+              onChange={handleChange}
+              min="0"
+              max="100"
+              required
+            />
+          </div>
+        ))}
+
+        <br />
+        <button type="submit">Save Result</button>
+      </form>
+
+      <h3>Saved Results</h3>
+      <table border="1" cellPadding="5" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th>Student</th>
+            {[1, 2, 3, 4].map(num => (
+              <th key={`midhead${num}`}>Sub{num} Mid</th>
+            ))}
+            {[1, 2, 3, 4].map(num => (
+              <th key={`endhead${num}`}>Sub{num} End</th>
+            ))}
+            <th>CGPA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {results.map(res => (
+            <tr key={res.id}>
+              <td>{res.student_name}</td>
+              {[1, 2, 3, 4].map(num => (
+                <td key={`mid${num}`}>{res[`subject${num}_midsem`]}</td>
+              ))}
+              {[1, 2, 3, 4].map(num => (
+                <td key={`end${num}`}>{res[`subject${num}_endsem`]}</td>
+              ))}
+              <td>{calculateCGPA(res)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default App;
+</file>
+
+<file path="backend_db_php/frontend/src/App.test.js">
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+</file>
+
+<file path="backend_db_php/frontend/src/index.css">
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+</file>
+
+<file path="backend_db_php/frontend/src/index.js">
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+</file>
+
+<file path="backend_db_php/frontend/src/logo.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.9 595.3"><g fill="#61DAFB"><path d="M666.3 296.5c0-32.5-40.7-63.3-103.1-82.4 14.4-63.6 8-114.2-20.2-130.4-6.5-3.8-14.1-5.6-22.4-5.6v22.3c4.6 0 8.3.9 11.4 2.6 13.6 7.8 19.5 37.5 14.9 75.7-1.1 9.4-2.9 19.3-5.1 29.4-19.6-4.8-41-8.5-63.5-10.9-13.5-18.5-27.5-35.3-41.6-50 32.6-30.3 63.2-46.9 84-46.9V78c-27.5 0-63.5 19.6-99.9 53.6-36.4-33.8-72.4-53.2-99.9-53.2v22.3c20.7 0 51.4 16.5 84 46.6-14 14.7-28 31.4-41.3 49.9-22.6 2.4-44 6.1-63.6 11-2.3-10-4-19.7-5.2-29-4.7-38.2 1.1-67.9 14.6-75.8 3-1.8 6.9-2.6 11.5-2.6V78.5c-8.4 0-16 1.8-22.6 5.6-28.1 16.2-34.4 66.7-19.9 130.1-62.2 19.2-102.7 49.9-102.7 82.3 0 32.5 40.7 63.3 103.1 82.4-14.4 63.6-8 114.2 20.2 130.4 6.5 3.8 14.1 5.6 22.5 5.6 27.5 0 63.5-19.6 99.9-53.6 36.4 33.8 72.4 53.2 99.9 53.2 8.4 0 16-1.8 22.6-5.6 28.1-16.2 34.4-66.7 19.9-130.1 62-19.1 102.5-49.9 102.5-82.3zm-130.2-66.7c-3.7 12.9-8.3 26.2-13.5 39.5-4.1-8-8.4-16-13.1-24-4.6-8-9.5-15.8-14.4-23.4 14.2 2.1 27.9 4.7 41 7.9zm-45.8 106.5c-7.8 13.5-15.8 26.3-24.1 38.2-14.9 1.3-30 2-45.2 2-15.1 0-30.2-.7-45-1.9-8.3-11.9-16.4-24.6-24.2-38-7.6-13.1-14.5-26.4-20.8-39.8 6.2-13.4 13.2-26.8 20.7-39.9 7.8-13.5 15.8-26.3 24.1-38.2 14.9-1.3 30-2 45.2-2 15.1 0 30.2.7 45 1.9 8.3 11.9 16.4 24.6 24.2 38 7.6 13.1 14.5 26.4 20.8 39.8-6.3 13.4-13.2 26.8-20.7 39.9zm32.3-13c5.4 13.4 10 26.8 13.8 39.8-13.1 3.2-26.9 5.9-41.2 8 4.9-7.7 9.8-15.6 14.4-23.7 4.6-8 8.9-16.1 13-24.1zM421.2 430c-9.3-9.6-18.6-20.3-27.8-32 9 .4 18.2.7 27.5.7 9.4 0 18.7-.2 27.8-.7-9 11.7-18.3 22.4-27.5 32zm-74.4-58.9c-14.2-2.1-27.9-4.7-41-7.9 3.7-12.9 8.3-26.2 13.5-39.5 4.1 8 8.4 16 13.1 24 4.7 8 9.5 15.8 14.4 23.4zM420.7 163c9.3 9.6 18.6 20.3 27.8 32-9-.4-18.2-.7-27.5-.7-9.4 0-18.7.2-27.8.7 9-11.7 18.3-22.4 27.5-32zm-74 58.9c-4.9 7.7-9.8 15.6-14.4 23.7-4.6 8-8.9 16-13 24-5.4-13.4-10-26.8-13.8-39.8 13.1-3.1 26.9-5.8 41.2-7.9zm-90.5 125.2c-35.4-15.1-58.3-34.9-58.3-50.6 0-15.7 22.9-35.6 58.3-50.6 8.6-3.7 18-7 27.7-10.1 5.7 19.6 13.2 40 22.5 60.9-9.2 20.8-16.6 41.1-22.2 60.6-9.9-3.1-19.3-6.5-28-10.2zM310 490c-13.6-7.8-19.5-37.5-14.9-75.7 1.1-9.4 2.9-19.3 5.1-29.4 19.6 4.8 41 8.5 63.5 10.9 13.5 18.5 27.5 35.3 41.6 50-32.6 30.3-63.2 46.9-84 46.9-4.5-.1-8.3-1-11.3-2.7zm237.2-76.2c4.7 38.2-1.1 67.9-14.6 75.8-3 1.8-6.9 2.6-11.5 2.6-20.7 0-51.4-16.5-84-46.6 14-14.7 28-31.4 41.3-49.9 22.6-2.4 44-6.1 63.6-11 2.3 10.1 4.1 19.8 5.2 29.1zm38.5-66.7c-8.6 3.7-18 7-27.7 10.1-5.7-19.6-13.2-40-22.5-60.9 9.2-20.8 16.6-41.1 22.2-60.6 9.9 3.1 19.3 6.5 28.1 10.2 35.4 15.1 58.3 34.9 58.3 50.6-.1 15.7-23 35.6-58.4 50.6zM320.8 78.4z"/><circle cx="420.9" cy="296.5" r="45.7"/><path d="M520.5 78.1z"/></g></svg>
+</file>
+
+<file path="backend_db_php/frontend/src/reportWebVitals.js">
+const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+</file>
+
+<file path="backend_db_php/frontend/src/setupTests.js">
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+</file>
+
+<file path="college-frontend/.gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="college-frontend/eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+])
+</file>
+
+<file path="college-frontend/HOW+TO+RUN.md">
+Nice — I’ll walk you through **from absolute scratch to running the whole project** (backend + frontend). You said *code is already there*, so I’ll focus on the exact **commands / clicks / checks** you need to do now (Windows paths shown — change if on macOS/Linux). Follow steps in order.
+
+# 0) Quick checklist (what you must have)
+
+* VS Code (or any editor)
+* XAMPP installed and working (Apache + MySQL) — MySQL we used on **port 3307** earlier
+* Node.js + npm installed
+* Your project folders:
+
+  * `C:\xampp\htdocs\result_api\` (PHP files: `db.php`, `save_result.php`, `get_results.php`)
+  * a React app folder (e.g. `C:\Users\You\projects\result-calculator\`) with `src/App.jsx`, etc.
+
+---
+
+# 1) Start XAMPP (Apache + MySQL)
+
+1. Run **XAMPP Control Panel** as Administrator (right-click → Run as admin).
+2. Start **Apache** and **MySQL**.
+
+   * If MySQL does not start, check XAMPP logs → MySQL or run `netstat -ano | findstr 3307` to check port use.
+   * If you changed MySQL to port `3307` earlier, make sure that is still set in `my.ini`.
+
+✅ Expected: both show green “Running”.
+
+---
+
+# 2) Confirm DB & table exist (phpMyAdmin)
+
+1. Open browser: `http://localhost/phpmyadmin`
+2. If phpMyAdmin shows, run SQL (SQL tab) — copy & paste:
+
+```sql
+CREATE DATABASE IF NOT EXISTS college_results CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE college_results;
+
+CREATE TABLE IF NOT EXISTS results (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_name VARCHAR(150) DEFAULT '',
+  sub1_mid FLOAT NOT NULL,
+  sub1_end FLOAT NOT NULL,
+  sub2_mid FLOAT NOT NULL,
+  sub2_end FLOAT NOT NULL,
+  sub3_mid FLOAT NOT NULL,
+  sub3_end FLOAT NOT NULL,
+  sub4_mid FLOAT NOT NULL,
+  sub4_end FLOAT NOT NULL,
+  avg_percentage FLOAT NOT NULL,
+  cgpa FLOAT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+* Run it. You should see the `college_results` DB and `results` table appear in the left sidebar.
+
+---
+
+# 3) Verify PHP backend files are in the right place
+
+Open `C:\xampp\htdocs\result_api\` and ensure you have:
+
+* `db.php` — must create a **$pdo** instance or be compatible with whichever save file you use. Recommended `db.php` (PDO + port 3307):
+
+```php
+<?php
+$host = '127.0.0.1';
+$port = '3307';
+$db   = 'college_results';
+$user = 'root';
+$pass = ''; // put root password if you set one
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database connection failed: '.$e->getMessage()]);
+    exit;
+}
+```
+
+* `save_result.php` — use the latest file I gave you (normalises by 50, weights 30/70, returns sub1..sub4, avg_percentage, cgpa). Make sure it `require 'db.php';` (so it can use `$pdo`). If you used mysqli variant earlier, adapt accordingly.
+
+* `get_results.php` — optional, but handy to test.
+
+---
+
+# 4) Quick backend test (in browser or curl)
+
+1. Test GET:
+
+   * Open: `http://localhost/result_api/get_results.php`
+   * You should see JSON (maybe `{"success":true,"results":[]}`).
+
+2. Test POST (quick curl; open PowerShell / CMD):
+
+```bash
+curl -X POST http://localhost/result_api/save_result.php -H "Content-Type: application/json" -d "{\"student_name\":\"Test\",\"sub1_mid\":50,\"sub1_end\":50,\"sub2_mid\":50,\"sub2_end\":50,\"sub3_mid\":50,\"sub3_end\":50,\"sub4_mid\":50,\"sub4_end\":50}"
+```
+
+* Expected: JSON with `success: true` and fields `sub1..sub4`, `avg_percentage`, `cgpa`.
+
+If GET/POST fail:
+
+* Open Apache error log: XAMPP Panel → Apache → Logs → error.log
+* Check `mysql_error.log` for DB problems.
+
+---
+
+# 5) Frontend: start dev server (Vite / React)
+
+1. Open Terminal / VS Code integrated terminal and `cd` into your React project folder:
+
+```bash
+cd C:\Users\YourUser\path\to\result-calculator
+```
+
+2. Install deps (if not already):
+
+```bash
+npm install
+```
+
+3. Ensure `src/App.jsx` uses the correct API base:
+
+* For dev, easiest: use **relative path** to avoid CORS headaches — change fetch to:
+
+```js
+// inside handleSubmit fetch
+const res = await fetch('/result_api/save_result.php', { ... });
+```
+
+(If you keep `API_BASE`, ensure `.env` has `VITE_API_BASE=http://localhost` (or include port if Apache has a different port).)
+
+4. Start dev server:
+
+```bash
+npm run dev
+```
+
+5. Open the Vite dev URL printed (usually `http://localhost:5173`) and test the form.
+
+**If you see** `Network error: Failed to fetch`:
+
+* Open browser and go to `http://localhost/result_api/get_results.php`. If that works, then URL mismatch: ensure frontend fetch uses `/result_api/save_result.php` or correct host/port.
+* Check browser console → Network tab for request to `save_result.php`. See status code and response.
+
+---
+
+# 6) Build & serve from Apache (optional — one-server production)
+
+If you prefer to serve the frontend from Apache so everything is `http://localhost/...`:
+
+1. Build React:
+
+```bash
+npm run build
+```
+
+2. Copy contents of `dist/` into a new folder inside htdocs, e.g.:
+
+```
+C:\xampp\htdocs\result_app\   <-- copy all files from dist here
+```
+
+3. Keep your API in `C:\xampp\htdocs\result_api\` (unchanged).
+4. Open `http://localhost/result_app/` — the app will fetch `/result_api/save_result.php` (relative path), so no CORS required.
+
+---
+
+# 7) Common fixes & tips (fast)
+
+* **If phpMyAdmin login error** → edit `C:\xampp\phpMyAdmin\config.inc.php` to ensure port `3307` and correct root password (if set).
+* **If MySQL port changed** → update `db.php` DSN with `port=xxxx`.
+* **If "Marks must be between 0 and 50"** → frontend must accept only 0–50. Use `type="number" min="0" max="50"`.
+* **If DB insert fails** → check PHP error with Apache logs and ensure PDO `$pdo` is created properly.
+* **If CORS error** → either use relative paths (recommended) or ensure PHP sends `Access-Control-Allow-Origin: *` (our saved file does).
+* **If data looks wrong** → re-check formulas; backend uses `($mid/50)*30 + ($end/50)*70` ⇒ returns 0–100 for each subject.
+
+---
+
+# 8) Final sanity test (sample run)
+
+1. Start XAMPP (Apache + MySQL).
+2. Visit `http://localhost/phpmyadmin` — confirm DB/table exist.
+3. Start React dev server (`npm run dev`) or open `http://localhost/result_app/` if built & deployed.
+4. Enter sample marks:
+
+   * s1_mid=50, s1_end=50
+   * s2_mid=50, s2_end=43
+   * s3_mid=30, s3_end=30
+   * s4_mid=50, s4_end=50
+5. Click **Calculate & Save**. Expected local preview (per subject percent) and server response showing sub1..sub4, avg_percentage and cgpa.
+
+---
+
+If you want, I can now:
+
+* produce a **one-click checklist** (commands you can paste into terminal), or
+* give a tiny script to test the API automatically (curl + JSON) to verify everything is working.
+
+Which would you like?
+</file>
+
+<file path="college-frontend/index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="college-frontend/package.json">
+{
+  "name": "result-calculator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "eslint": "^9.35.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.4.0",
+    "vite": "^7.1.6"
+  }
+}
+</file>
+
+<file path="college-frontend/public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="college-frontend/README.md">
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</file>
+
+<file path="college-frontend/repomix-output.xml">
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+eslint.config.js
+HOW+TO+RUN.md
+index.html
+package.json
+public/vite.svg
+README.md
+src/App.css
+src/App.jsx
+src/App2.jsx
+src/assets/react.svg
+src/index.css
+src/main.jsx
+vite.config.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+])
+</file>
+
+<file path="HOW+TO+RUN.md">
+Nice — I’ll walk you through **from absolute scratch to running the whole project** (backend + frontend). You said *code is already there*, so I’ll focus on the exact **commands / clicks / checks** you need to do now (Windows paths shown — change if on macOS/Linux). Follow steps in order.
+
+# 0) Quick checklist (what you must have)
+
+* VS Code (or any editor)
+* XAMPP installed and working (Apache + MySQL) — MySQL we used on **port 3307** earlier
+* Node.js + npm installed
+* Your project folders:
+
+  * `C:\xampp\htdocs\result_api\` (PHP files: `db.php`, `save_result.php`, `get_results.php`)
+  * a React app folder (e.g. `C:\Users\You\projects\result-calculator\`) with `src/App.jsx`, etc.
+
+---
+
+# 1) Start XAMPP (Apache + MySQL)
+
+1. Run **XAMPP Control Panel** as Administrator (right-click → Run as admin).
+2. Start **Apache** and **MySQL**.
+
+   * If MySQL does not start, check XAMPP logs → MySQL or run `netstat -ano | findstr 3307` to check port use.
+   * If you changed MySQL to port `3307` earlier, make sure that is still set in `my.ini`.
+
+✅ Expected: both show green “Running”.
+
+---
+
+# 2) Confirm DB & table exist (phpMyAdmin)
+
+1. Open browser: `http://localhost/phpmyadmin`
+2. If phpMyAdmin shows, run SQL (SQL tab) — copy & paste:
+
+```sql
+CREATE DATABASE IF NOT EXISTS college_results CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE college_results;
+
+CREATE TABLE IF NOT EXISTS results (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_name VARCHAR(150) DEFAULT '',
+  sub1_mid FLOAT NOT NULL,
+  sub1_end FLOAT NOT NULL,
+  sub2_mid FLOAT NOT NULL,
+  sub2_end FLOAT NOT NULL,
+  sub3_mid FLOAT NOT NULL,
+  sub3_end FLOAT NOT NULL,
+  sub4_mid FLOAT NOT NULL,
+  sub4_end FLOAT NOT NULL,
+  avg_percentage FLOAT NOT NULL,
+  cgpa FLOAT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+* Run it. You should see the `college_results` DB and `results` table appear in the left sidebar.
+
+---
+
+# 3) Verify PHP backend files are in the right place
+
+Open `C:\xampp\htdocs\result_api\` and ensure you have:
+
+* `db.php` — must create a **$pdo** instance or be compatible with whichever save file you use. Recommended `db.php` (PDO + port 3307):
+
+```php
+<?php
+$host = '127.0.0.1';
+$port = '3307';
+$db   = 'college_results';
+$user = 'root';
+$pass = ''; // put root password if you set one
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database connection failed: '.$e->getMessage()]);
+    exit;
+}
+```
+
+* `save_result.php` — use the latest file I gave you (normalises by 50, weights 30/70, returns sub1..sub4, avg_percentage, cgpa). Make sure it `require 'db.php';` (so it can use `$pdo`). If you used mysqli variant earlier, adapt accordingly.
+
+* `get_results.php` — optional, but handy to test.
+
+---
+
+# 4) Quick backend test (in browser or curl)
+
+1. Test GET:
+
+   * Open: `http://localhost/result_api/get_results.php`
+   * You should see JSON (maybe `{"success":true,"results":[]}`).
+
+2. Test POST (quick curl; open PowerShell / CMD):
+
+```bash
+curl -X POST http://localhost/result_api/save_result.php -H "Content-Type: application/json" -d "{\"student_name\":\"Test\",\"sub1_mid\":50,\"sub1_end\":50,\"sub2_mid\":50,\"sub2_end\":50,\"sub3_mid\":50,\"sub3_end\":50,\"sub4_mid\":50,\"sub4_end\":50}"
+```
+
+* Expected: JSON with `success: true` and fields `sub1..sub4`, `avg_percentage`, `cgpa`.
+
+If GET/POST fail:
+
+* Open Apache error log: XAMPP Panel → Apache → Logs → error.log
+* Check `mysql_error.log` for DB problems.
+
+---
+
+# 5) Frontend: start dev server (Vite / React)
+
+1. Open Terminal / VS Code integrated terminal and `cd` into your React project folder:
+
+```bash
+cd C:\Users\YourUser\path\to\result-calculator
+```
+
+2. Install deps (if not already):
+
+```bash
+npm install
+```
+
+3. Ensure `src/App.jsx` uses the correct API base:
+
+* For dev, easiest: use **relative path** to avoid CORS headaches — change fetch to:
+
+```js
+// inside handleSubmit fetch
+const res = await fetch('/result_api/save_result.php', { ... });
+```
+
+(If you keep `API_BASE`, ensure `.env` has `VITE_API_BASE=http://localhost` (or include port if Apache has a different port).)
+
+4. Start dev server:
+
+```bash
+npm run dev
+```
+
+5. Open the Vite dev URL printed (usually `http://localhost:5173`) and test the form.
+
+**If you see** `Network error: Failed to fetch`:
+
+* Open browser and go to `http://localhost/result_api/get_results.php`. If that works, then URL mismatch: ensure frontend fetch uses `/result_api/save_result.php` or correct host/port.
+* Check browser console → Network tab for request to `save_result.php`. See status code and response.
+
+---
+
+# 6) Build & serve from Apache (optional — one-server production)
+
+If you prefer to serve the frontend from Apache so everything is `http://localhost/...`:
+
+1. Build React:
+
+```bash
+npm run build
+```
+
+2. Copy contents of `dist/` into a new folder inside htdocs, e.g.:
+
+```
+C:\xampp\htdocs\result_app\   <-- copy all files from dist here
+```
+
+3. Keep your API in `C:\xampp\htdocs\result_api\` (unchanged).
+4. Open `http://localhost/result_app/` — the app will fetch `/result_api/save_result.php` (relative path), so no CORS required.
+
+---
+
+# 7) Common fixes & tips (fast)
+
+* **If phpMyAdmin login error** → edit `C:\xampp\phpMyAdmin\config.inc.php` to ensure port `3307` and correct root password (if set).
+* **If MySQL port changed** → update `db.php` DSN with `port=xxxx`.
+* **If "Marks must be between 0 and 50"** → frontend must accept only 0–50. Use `type="number" min="0" max="50"`.
+* **If DB insert fails** → check PHP error with Apache logs and ensure PDO `$pdo` is created properly.
+* **If CORS error** → either use relative paths (recommended) or ensure PHP sends `Access-Control-Allow-Origin: *` (our saved file does).
+* **If data looks wrong** → re-check formulas; backend uses `($mid/50)*30 + ($end/50)*70` ⇒ returns 0–100 for each subject.
+
+---
+
+# 8) Final sanity test (sample run)
+
+1. Start XAMPP (Apache + MySQL).
+2. Visit `http://localhost/phpmyadmin` — confirm DB/table exist.
+3. Start React dev server (`npm run dev`) or open `http://localhost/result_app/` if built & deployed.
+4. Enter sample marks:
+
+   * s1_mid=50, s1_end=50
+   * s2_mid=50, s2_end=43
+   * s3_mid=30, s3_end=30
+   * s4_mid=50, s4_end=50
+5. Click **Calculate & Save**. Expected local preview (per subject percent) and server response showing sub1..sub4, avg_percentage and cgpa.
+
+---
+
+If you want, I can now:
+
+* produce a **one-click checklist** (commands you can paste into terminal), or
+* give a tiny script to test the API automatically (curl + JSON) to verify everything is working.
+
+Which would you like?
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "result-calculator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "eslint": "^9.35.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.4.0",
+    "vite": "^7.1.6"
+  }
+}
+</file>
+
+<file path="public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="README.md">
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</file>
+
+<file path="src/App.css">
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+</file>
+
+<file path="src/App.jsx">
+// import React, { useState } from 'react';
+
+// const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost';
+
+// const initialMarks = {
+//   sub1_mid: '', sub1_end: '',
+//   sub2_mid: '', sub2_end: '',
+//   sub3_mid: '', sub3_end: '',
+//   sub4_mid: '', sub4_end: ''
+// };
+
+// export default function App() {
+//   const [studentName, setStudentName] = useState('');
+//   const [marks, setMarks] = useState(initialMarks);
+//   const [error, setError] = useState('');
+//   const [result, setResult] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   function handleChange(e) {
+//     const { name, value } = e.target;
+//     // allow empty or integer numbers up to 50
+//     if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+//       setMarks(prev => ({ ...prev, [name]: value }));
+//     }
+//   }
+
+//   function validateInputs() {
+//     if (!studentName.trim()) return 'Please enter student name';
+//     for (const key of Object.keys(marks)) {
+//       const v = marks[key];
+//       if (v === '') return 'Please fill all marks';
+//       const n = Number(v);
+//       if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+//     }
+//     return null;
+//   }
+
+//   async function handleSubmit(e) {
+//     e.preventDefault();
+//     setError('');
+//     setResult(null);
+
+//     const err = validateInputs();
+//     if (err) { setError(err); return; }
+
+//     const payload = {
+//       student_name: studentName,
+//       ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+//     };
+
+//     try {
+//       setLoading(true);
+//       const res = await fetch(`${API_BASE}/result_api/save_result.php`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+//       const data = await res.json();
+//       setLoading(false);
+//       if (!res.ok) {
+//         setError(data?.error || 'Server error');
+//         return;
+//       }
+//       // data contains sub1..sub4, avg_percentage, cgpa
+//       setResult(data);
+//     } catch (err) {
+//       setLoading(false);
+//       setError('Network error: ' + err.message);
+//     }
+//   }
+
+//   // local computation (same formula as backend)
+//   function computeLocally() {
+//     const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+//     const s1 = compute(marks.sub1_mid, marks.sub1_end);
+//     const s2 = compute(marks.sub2_mid, marks.sub2_end);
+//     const s3 = compute(marks.sub3_mid, marks.sub3_end);
+//     const s4 = compute(marks.sub4_mid, marks.sub4_end);
+//     const avg = (s1 + s2 + s3 + s4) / 4.0;
+//     const cgpa = avg / 10.0;
+//     return {
+//       per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+//       avg: Number(avg.toFixed(2)),
+//       cgpa: Number(cgpa.toFixed(2))
+//     };
+//   }
+
+//   const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+//   return (
+//     <div className="container">
+//       <h1>College Result Calculator</h1>
+//       <p className="small">Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.</p>
+
+//       <form onSubmit={handleSubmit}>
+//         <div style={{ marginBottom: 12 }}>
+//           <div className="label">Student Name</div>
+//           <input className="input" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g., John Doe" />
+//         </div>
+
+//         <div className="form-grid">
+//           {['1','2','3','4'].map(num => (
+//             <React.Fragment key={num}>
+//               <div>
+//                 <div className="label">Subject {num} Midsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_mid`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_mid`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//               <div>
+//                 <div className="label">Subject {num} Endsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_end`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_end`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//             </React.Fragment>
+//           ))}
+//         </div>
+
+//         {error && <div className="error">{error}</div>}
+
+//         <div style={{ marginTop: 12 }}>
+//           <button className="button" type="submit" disabled={loading}>
+//             {loading ? 'Calculating...' : 'Calculate & Save'}
+//           </button>
+//         </div>
+//       </form>
+
+//       <div className="results">
+//         {local && (
+//           <>
+//             <h3>Local Preview</h3>
+//             <table className="table">
+//               <thead>
+//                 <tr><th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{local.per[0]}</td>
+//                   <td>{local.per[1]}</td>
+//                   <td>{local.per[2]}</td>
+//                   <td>{local.per[3]}</td>
+//                   <td>{local.avg}</td>
+//                   <td>{local.cgpa}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </>
+//         )}
+
+//         {result && (
+//           <div style={{ marginTop: 14 }}>
+//             <h3>Saved Result</h3>
+//             <div className="success">Saved as ID: {result.id}</div>
+//             <div className="small">
+//               <strong>Server values:</strong>
+//             </div>
+//             <table className="table" style={{marginTop:8}}>
+//               <thead>
+//                 <tr><th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{Number(result.sub1).toFixed(2)}</td>
+//                   <td>{Number(result.sub2).toFixed(2)}</td>
+//                   <td>{Number(result.sub3).toFixed(2)}</td>
+//                   <td>{Number(result.sub4).toFixed(2)}</td>
+//                   <td>{Number(result.avg_percentage).toFixed(2)}</td>
+//                   <td>{Number(result.cgpa).toFixed(2)}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+const API_BASE = 'http://localhost:8080';
+
+const initialMarks = {
+  sub1_mid: '', sub1_end: '',
+  sub2_mid: '', sub2_end: '',
+  sub3_mid: '', sub3_end: '',
+  sub4_mid: '', sub4_end: ''
+};
+
+export default function App() {
+  const [studentName, setStudentName] = useState('');
+  const [marks, setMarks] = useState(initialMarks);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    // allow empty or integer numbers up to 50
+    if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+      setMarks(prev => ({ ...prev, [name]: value }));
+    }
+  }
+
+  function validateInputs() {
+    if (!studentName.trim()) return 'Please enter student name';
+    for (const key of Object.keys(marks)) {
+      const v = marks[key];
+      if (v === '') return 'Please fill all marks';
+      const n = Number(v);
+      if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+    }
+    return null;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    setResult(null);
+
+    const err = validateInputs();
+    if (err) { setError(err); return; }
+
+    const payload = {
+      student_name: studentName,
+      ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+    };
+
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/api/results`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload)
+});
+
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) {
+        setError(data?.error || 'Server error');
+        return;
+      }
+      // data contains sub1..sub4, avg_percentage, cgpa
+      setResult({ ...data, student_name: studentName });
+    } catch (err) {
+      setLoading(false);
+      setError('Network error: ' + err.message);
+    }
+  }
+
+  // local computation (same formula as backend)
+  function computeLocally() {
+    const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+    const s1 = compute(marks.sub1_mid, marks.sub1_end);
+    const s2 = compute(marks.sub2_mid, marks.sub2_end);
+    const s3 = compute(marks.sub3_mid, marks.sub3_end);
+    const s4 = compute(marks.sub4_mid, marks.sub4_end);
+    const avg = (s1 + s2 + s3 + s4) / 4.0;
+    const cgpa = avg / 10.0;
+    return {
+      per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+      avg: Number(avg.toFixed(2)),
+      cgpa: Number(cgpa.toFixed(2))
+    };
+  }
+
+  const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+  // PDF generation
+  const generateCertificate = () => {
+    const cert = document.getElementById('certificate');
+    if (!cert) return;
+    html2canvas(cert).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${result.student_name}_Result_Certificate.pdf`);
+    });
+  };
+
+  return (
+    <div className="container">
+      <h1>College Result Calculator</h1>
+      <p className="small">Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.</p>
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
+          <div className="label">Student Name</div>
+          <input className="input" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g., John Doe" />
+        </div>
+
+        <div className="form-grid">
+          {['1','2','3','4'].map(num => (
+            <React.Fragment key={num}>
+              <div>
+                <div className="label">Subject {num} Midsem (max 50)</div>
+                <input
+                  className="input"
+                  name={`sub${num}_mid`}
+                  type="number"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={marks[`sub${num}_mid`]}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <div className="label">Subject {num} Endsem (max 50)</div>
+                <input
+                  className="input"
+                  name={`sub${num}_end`}
+                  type="number"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={marks[`sub${num}_end`]}
+                  onChange={handleChange}
+                />
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+
+        {error && <div className="error">{error}</div>}
+
+        <div style={{ marginTop: 12 }}>
+          <button className="button" type="submit" disabled={loading}>
+            {loading ? 'Calculating...' : 'Calculate & Save'}
+          </button>
+        </div>
+      </form>
+
+      <div className="results">
+        {local && (
+          <>
+            <h3>Local Preview</h3>
+            <table className="table">
+              <thead>
+                <tr><th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{local.per[0]}</td>
+                  <td>{local.per[1]}</td>
+                  <td>{local.per[2]}</td>
+                  <td>{local.per[3]}</td>
+                  <td>{local.avg}</td>
+                  <td>{local.cgpa}</td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
+
+        {result && (
+          <div style={{ marginTop: 14 }}>
+            <h3>Saved Result</h3>
+            <div className="success">Saved as ID: {result.id}</div>
+            <div className="small">
+              <strong>Server values:</strong>
+            </div>
+            <table className="table" style={{marginTop:8}}>
+              <thead>
+                <tr><th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{Number(result.sub1).toFixed(2)}</td>
+                  <td>{Number(result.sub2).toFixed(2)}</td>
+                  <td>{Number(result.sub3).toFixed(2)}</td>
+                  <td>{Number(result.sub4).toFixed(2)}</td>
+                  <td>{Number(result.avg_percentage).toFixed(2)}</td>
+                  <td>{Number(result.cgpa).toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Certificate Section */}
+            <div id="certificate" style={{marginTop:20, padding:20, border:"2px solid black", textAlign:"center", background:"white"}}>
+              <h2>🏛️ ABC College of Engineering</h2>
+              <h3>Certificate of Result</h3>
+              <p>This is to certify that</p>
+              <h2>{result.student_name}</h2>
+              <p>has successfully completed the examinations with the following scores:</p>
+
+              <table className="table" style={{margin:"20px auto", width:"80%"}}>
+                <thead>
+                  <tr><th>Subject</th><th>Final %</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Subject 1</td><td>{Number(result.sub1).toFixed(2)}</td></tr>
+                  <tr><td>Subject 2</td><td>{Number(result.sub2).toFixed(2)}</td></tr>
+                  <tr><td>Subject 3</td><td>{Number(result.sub3).toFixed(2)}</td></tr>
+                  <tr><td>Subject 4</td><td>{Number(result.sub4).toFixed(2)}</td></tr>
+                </tbody>
+              </table>
+
+              <h3>Average Percentage: {Number(result.avg_percentage).toFixed(2)}%</h3>
+              <h3>CGPA: {Number(result.cgpa).toFixed(2)} / 10</h3>
+
+              <p style={{marginTop:30}}>
+                __________________________ <br />
+                Principal, ABC College
+              </p>
+            </div>
+
+            <button onClick={generateCertificate} className="button" style={{marginTop:20}}>
+              Download Certificate
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/App2.jsx">
+// import React, { useState } from 'react';
+
+// const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost';
+
+// const initialMarks = {
+//   sub1_mid: '', sub1_end: '',
+//   sub2_mid: '', sub2_end: '',
+//   sub3_mid: '', sub3_end: '',
+//   sub4_mid: '', sub4_end: ''
+// };
+
+// export default function App() {
+//   const [studentName, setStudentName] = useState('');
+//   const [marks, setMarks] = useState(initialMarks);
+//   const [error, setError] = useState('');
+//   const [result, setResult] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   function handleChange(e) {
+//     const { name, value } = e.target;
+//     // allow empty or integer numbers up to 50
+//     if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+//       setMarks(prev => ({ ...prev, [name]: value }));
+//     }
+//   }
+
+//   function validateInputs() {
+//     if (!studentName.trim()) return 'Please enter student name';
+//     for (const key of Object.keys(marks)) {
+//       const v = marks[key];
+//       if (v === '') return 'Please fill all marks';
+//       const n = Number(v);
+//       if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+//     }
+//     return null;
+//   }
+
+//   async function handleSubmit(e) {
+//     e.preventDefault();
+//     setError('');
+//     setResult(null);
+
+//     const err = validateInputs();
+//     if (err) { setError(err); return; }
+
+//     const payload = {
+//       student_name: studentName,
+//       ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+//     };
+
+//     try {
+//       setLoading(true);
+//       const res = await fetch(`${API_BASE}/result_api/save_result.php`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+//       const data = await res.json();
+//       setLoading(false);
+//       if (!res.ok) {
+//         setError(data?.error || 'Server error');
+//         return;
+//       }
+//       // data contains sub1..sub4, avg_percentage, cgpa
+//       setResult(data);
+//     } catch (err) {
+//       setLoading(false);
+//       setError('Network error: ' + err.message);
+//     }
+//   }
+
+//   // local computation (same formula as backend)
+//   function computeLocally() {
+//     const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+//     const s1 = compute(marks.sub1_mid, marks.sub1_end);
+//     const s2 = compute(marks.sub2_mid, marks.sub2_end);
+//     const s3 = compute(marks.sub3_mid, marks.sub3_end);
+//     const s4 = compute(marks.sub4_mid, marks.sub4_end);
+//     const avg = (s1 + s2 + s3 + s4) / 4.0;
+//     const cgpa = avg / 10.0;
+//     return {
+//       per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+//       avg: Number(avg.toFixed(2)),
+//       cgpa: Number(cgpa.toFixed(2))
+//     };
+//   }
+
+//   const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+//   return (
+//     <div className="container">
+//       <h1>College Result Calculator</h1>
+//       <p className="small">Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.</p>
+
+//       <form onSubmit={handleSubmit}>
+//         <div style={{ marginBottom: 12 }}>
+//           <div className="label">Student Name</div>
+//           <input className="input" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g., John Doe" />
+//         </div>
+
+//         <div className="form-grid">
+//           {['1','2','3','4'].map(num => (
+//             <React.Fragment key={num}>
+//               <div>
+//                 <div className="label">Subject {num} Midsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_mid`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_mid`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//               <div>
+//                 <div className="label">Subject {num} Endsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_end`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_end`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//             </React.Fragment>
+//           ))}
+//         </div>
+
+//         {error && <div className="error">{error}</div>}
+
+//         <div style={{ marginTop: 12 }}>
+//           <button className="button" type="submit" disabled={loading}>
+//             {loading ? 'Calculating...' : 'Calculate & Save'}
+//           </button>
+//         </div>
+//       </form>
+
+//       <div className="results">
+//         {local && (
+//           <>
+//             <h3>Local Preview</h3>
+//             <table className="table">
+//               <thead>
+//                 <tr><th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{local.per[0]}</td>
+//                   <td>{local.per[1]}</td>
+//                   <td>{local.per[2]}</td>
+//                   <td>{local.per[3]}</td>
+//                   <td>{local.avg}</td>
+//                   <td>{local.cgpa}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </>
+//         )}
+
+//         {result && (
+//           <div style={{ marginTop: 14 }}>
+//             <h3>Saved Result</h3>
+//             <div className="success">Saved as ID: {result.id}</div>
+//             <div className="small">
+//               <strong>Server values:</strong>
+//             </div>
+//             <table className="table" style={{marginTop:8}}>
+//               <thead>
+//                 <tr><th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{Number(result.sub1).toFixed(2)}</td>
+//                   <td>{Number(result.sub2).toFixed(2)}</td>
+//                   <td>{Number(result.sub3).toFixed(2)}</td>
+//                   <td>{Number(result.sub4).toFixed(2)}</td>
+//                   <td>{Number(result.avg_percentage).toFixed(2)}</td>
+//                   <td>{Number(result.cgpa).toFixed(2)}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost';
+
+const initialMarks = {
+  sub1_mid: '', sub1_end: '',
+  sub2_mid: '', sub2_end: '',
+  sub3_mid: '', sub3_end: '',
+  sub4_mid: '', sub4_end: ''
+};
+
+export default function App() {
+  const [studentName, setStudentName] = useState('');
+  const [marks, setMarks] = useState(initialMarks);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    // allow empty or integer numbers up to 50
+    if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+      setMarks(prev => ({ ...prev, [name]: value }));
+    }
+  }
+
+  function validateInputs() {
+    if (!studentName.trim()) return 'Please enter student name';
+    for (const key of Object.keys(marks)) {
+      const v = marks[key];
+      if (v === '') return 'Please fill all marks';
+      const n = Number(v);
+      if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+    }
+    return null;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    setResult(null);
+
+    const err = validateInputs();
+    if (err) { setError(err); return; }
+
+    const payload = {
+      student_name: studentName,
+      ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+    };
+
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/result_api/save_result.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) {
+        setError(data?.error || 'Server error');
+        return;
+      }
+      // data contains sub1..sub4, avg_percentage, cgpa
+      setResult({ ...data, student_name: studentName });
+    } catch (err) {
+      setLoading(false);
+      setError('Network error: ' + err.message);
+    }
+  }
+
+  // local computation (same formula as backend)
+  function computeLocally() {
+    const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+    const s1 = compute(marks.sub1_mid, marks.sub1_end);
+    const s2 = compute(marks.sub2_mid, marks.sub2_end);
+    const s3 = compute(marks.sub3_mid, marks.sub3_end);
+    const s4 = compute(marks.sub4_mid, marks.sub4_end);
+    const avg = (s1 + s2 + s3 + s4) / 4.0;
+    const cgpa = avg / 10.0;
+    return {
+      per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+      avg: Number(avg.toFixed(2)),
+      cgpa: Number(cgpa.toFixed(2))
+    };
+  }
+
+  const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+  // PDF generation
+  const generateCertificate = () => {
+    const cert = document.getElementById('certificate');
+    if (!cert) return;
+    html2canvas(cert).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${result.student_name}_Result_Certificate.pdf`);
+    });
+  };
+
+  return (
+    <div className="container">
+      <h1>College Result Calculator</h1>
+      <p className="small">Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.</p>
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
+          <div className="label">Student Name</div>
+          <input className="input" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g., John Doe" />
+        </div>
+
+        <div className="form-grid">
+          {['1','2','3','4'].map(num => (
+            <React.Fragment key={num}>
+              <div>
+                <div className="label">Subject {num} Midsem (max 50)</div>
+                <input
+                  className="input"
+                  name={`sub${num}_mid`}
+                  type="number"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={marks[`sub${num}_mid`]}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <div className="label">Subject {num} Endsem (max 50)</div>
+                <input
+                  className="input"
+                  name={`sub${num}_end`}
+                  type="number"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={marks[`sub${num}_end`]}
+                  onChange={handleChange}
+                />
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+
+        {error && <div className="error">{error}</div>}
+
+        <div style={{ marginTop: 12 }}>
+          <button className="button" type="submit" disabled={loading}>
+            {loading ? 'Calculating...' : 'Calculate & Save'}
+          </button>
+        </div>
+      </form>
+
+      <div className="results">
+        {local && (
+          <>
+            <h3>Local Preview</h3>
+            <table className="table">
+              <thead>
+                <tr><th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{local.per[0]}</td>
+                  <td>{local.per[1]}</td>
+                  <td>{local.per[2]}</td>
+                  <td>{local.per[3]}</td>
+                  <td>{local.avg}</td>
+                  <td>{local.cgpa}</td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
+
+        {result && (
+          <div style={{ marginTop: 14 }}>
+            <h3>Saved Result</h3>
+            <div className="success">Saved as ID: {result.id}</div>
+            <div className="small">
+              <strong>Server values:</strong>
+            </div>
+            <table className="table" style={{marginTop:8}}>
+              <thead>
+                <tr><th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{Number(result.sub1).toFixed(2)}</td>
+                  <td>{Number(result.sub2).toFixed(2)}</td>
+                  <td>{Number(result.sub3).toFixed(2)}</td>
+                  <td>{Number(result.sub4).toFixed(2)}</td>
+                  <td>{Number(result.avg_percentage).toFixed(2)}</td>
+                  <td>{Number(result.cgpa).toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Certificate Section */}
+            <div id="certificate" style={{marginTop:20, padding:20, border:"2px solid black", textAlign:"center", background:"white"}}>
+              <h2>🏛️ ABC College of Engineering</h2>
+              <h3>Certificate of Result</h3>
+              <p>This is to certify that</p>
+              <h2>{result.student_name}</h2>
+              <p>has successfully completed the examinations with the following scores:</p>
+
+              <table className="table" style={{margin:"20px auto", width:"80%"}}>
+                <thead>
+                  <tr><th>Subject</th><th>Final %</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Subject 1</td><td>{Number(result.sub1).toFixed(2)}</td></tr>
+                  <tr><td>Subject 2</td><td>{Number(result.sub2).toFixed(2)}</td></tr>
+                  <tr><td>Subject 3</td><td>{Number(result.sub3).toFixed(2)}</td></tr>
+                  <tr><td>Subject 4</td><td>{Number(result.sub4).toFixed(2)}</td></tr>
+                </tbody>
+              </table>
+
+              <h3>Average Percentage: {Number(result.avg_percentage).toFixed(2)}%</h3>
+              <h3>CGPA: {Number(result.cgpa).toFixed(2)} / 10</h3>
+
+              <p style={{marginTop:30}}>
+                __________________________ <br />
+                Principal, ABC College
+              </p>
+            </div>
+
+            <button onClick={generateCertificate} className="button" style={{marginTop:20}}>
+              Download Certificate
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="src/index.css">
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body { margin: 0; padding: 20px; background: #f7f7fb; color: #222; }
+.container { max-width: 780px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+h1 { margin-top: 0; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.label { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+.input { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+.button { background: #2563eb; color: white; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.results { margin-top: 18px; }
+.small { font-size: 13px; color: #555; }
+.error { color: #b91c1c; font-weight: 600; }
+.success { color: #15803d; font-weight: 700; }
+.table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.table th, .table td { border: 1px solid #eee; padding: 8px; text-align: center; }
+</file>
+
+<file path="src/main.jsx">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './index.css';
+
+createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+</file>
+
+<file path="vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+</files>
+</file>
+
+<file path="college-frontend/src/App.css">
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+</file>
+
+<file path="college-frontend/src/App.jsx">
+// import React, { useState } from 'react';
+// import jsPDF from 'jspdf';
+// import html2canvas from 'html2canvas';
+
+// const API_BASE = 'http://localhost:8080';
+
+// const initialMarks = {
+//   sub1_mid: '', sub1_end: '',
+//   sub2_mid: '', sub2_end: '',
+//   sub3_mid: '', sub3_end: '',
+//   sub4_mid: '', sub4_end: ''
+// };
+
+// export default function App() {
+//   const [studentName, setStudentName] = useState('');
+//   const [marks, setMarks] = useState(initialMarks);
+//   const [error, setError] = useState('');
+//   const [result, setResult] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   function handleChange(e) {
+//     const { name, value } = e.target;
+//     // allow empty or integer numbers up to 50
+//     if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+//       setMarks(prev => ({ ...prev, [name]: value }));
+//     }
+//   }
+
+//   function validateInputs() {
+//     if (!studentName.trim()) return 'Please enter student name';
+//     for (const key of Object.keys(marks)) {
+//       const v = marks[key];
+//       if (v === '') return 'Please fill all marks';
+//       const n = Number(v);
+//       if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+//     }
+//     return null;
+//   }
+
+//   async function handleSubmit(e) {
+//     e.preventDefault();
+//     setError('');
+//     setResult(null);
+
+//     const err = validateInputs();
+//     if (err) { setError(err); return; }
+
+//     const payload = {
+//       student_name: studentName,
+//       ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+//     };
+
+//     try {
+//       setLoading(true);
+//       const res = await fetch(`${API_BASE}/api/results`, {
+//   method: 'POST',
+//   headers: { 'Content-Type': 'application/json' },
+//   body: JSON.stringify(payload)
+// });
+
+//       const data = await res.json();
+//       setLoading(false);
+//       if (!res.ok) {
+//         setError(data?.error || 'Server error');
+//         return;
+//       }
+//       // data contains sub1..sub4, avg_percentage, cgpa
+//       setResult({ ...data, student_name: studentName });
+//     } catch (err) {
+//       setLoading(false);
+//       setError('Network error: ' + err.message);
+//     }
+//   }
+
+//   // local computation (same formula as backend)
+//   function computeLocally() {
+//     const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+//     const s1 = compute(marks.sub1_mid, marks.sub1_end);
+//     const s2 = compute(marks.sub2_mid, marks.sub2_end);
+//     const s3 = compute(marks.sub3_mid, marks.sub3_end);
+//     const s4 = compute(marks.sub4_mid, marks.sub4_end);
+//     const avg = (s1 + s2 + s3 + s4) / 4.0;
+//     const cgpa = avg / 10.0;
+//     return {
+//       per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+//       avg: Number(avg.toFixed(2)),
+//       cgpa: Number(cgpa.toFixed(2))
+//     };
+//   }
+
+//   const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+//   // PDF generation
+//   const generateCertificate = () => {
+//     const cert = document.getElementById('certificate');
+//     if (!cert) return;
+//     html2canvas(cert).then((canvas) => {
+//       const imgData = canvas.toDataURL('image/png');
+//       const pdf = new jsPDF('p', 'mm', 'a4');
+//       const imgProps = pdf.getImageProperties(imgData);
+//       const pdfWidth = pdf.internal.pageSize.getWidth();
+//       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+//       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+//       pdf.save(`${result.student_name}_Result_Certificate.pdf`);
+//     });
+//   };
+
+//   return (
+//     <div className="container">
+//       <h1>College Result Calculator</h1>
+//       <p className="small">Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.</p>
+
+//       <form onSubmit={handleSubmit}>
+//         <div style={{ marginBottom: 12 }}>
+//           <div className="label">Student Name</div>
+//           <input className="input" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g., John Doe" />
+//         </div>
+
+//         <div className="form-grid">
+//           {['1','2','3','4'].map(num => (
+//             <React.Fragment key={num}>
+//               <div>
+//                 <div className="label">Subject {num} Midsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_mid`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_mid`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//               <div>
+//                 <div className="label">Subject {num} Endsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_end`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_end`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//             </React.Fragment>
+//           ))}
+//         </div>
+
+//         {error && <div className="error">{error}</div>}
+
+//         <div style={{ marginTop: 12 }}>
+//           <button className="button" type="submit" disabled={loading}>
+//             {loading ? 'Calculating...' : 'Calculate & Save'}
+//           </button>
+//         </div>
+//       </form>
+
+//       <div className="results">
+//         {local && (
+//           <>
+//             <h3>Local Preview</h3>
+//             <table className="table">
+//               <thead>
+//                 <tr><th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{local.per[0]}</td>
+//                   <td>{local.per[1]}</td>
+//                   <td>{local.per[2]}</td>
+//                   <td>{local.per[3]}</td>
+//                   <td>{local.avg}</td>
+//                   <td>{local.cgpa}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </>
+//         )}
+
+//         {result && (
+//           <div style={{ marginTop: 14 }}>
+//             <h3>Saved Result</h3>
+//             <div className="success">Saved as ID: {result.id}</div>
+//             <div className="small">
+//               <strong>Server values:</strong>
+//             </div>
+//             <table className="table" style={{marginTop:8}}>
+//               <thead>
+//                 <tr><th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{Number(result.sub1).toFixed(2)}</td>
+//                   <td>{Number(result.sub2).toFixed(2)}</td>
+//                   <td>{Number(result.sub3).toFixed(2)}</td>
+//                   <td>{Number(result.sub4).toFixed(2)}</td>
+//                   <td>{Number(result.avg_percentage).toFixed(2)}</td>
+//                   <td>{Number(result.cgpa).toFixed(2)}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+
+//             {/* Certificate Section */}
+//             <div id="certificate" style={{marginTop:20, padding:20, border:"2px solid black", textAlign:"center", background:"white"}}>
+//               <h2>🏛️ ABC College of Engineering</h2>
+//               <h3>Certificate of Result</h3>
+//               <p>This is to certify that</p>
+//               <h2>{result.student_name}</h2>
+//               <p>has successfully completed the examinations with the following scores:</p>
+
+//               <table className="table" style={{margin:"20px auto", width:"80%"}}>
+//                 <thead>
+//                   <tr><th>Subject</th><th>Final %</th></tr>
+//                 </thead>
+//                 <tbody>
+//                   <tr><td>Subject 1</td><td>{Number(result.sub1).toFixed(2)}</td></tr>
+//                   <tr><td>Subject 2</td><td>{Number(result.sub2).toFixed(2)}</td></tr>
+//                   <tr><td>Subject 3</td><td>{Number(result.sub3).toFixed(2)}</td></tr>
+//                   <tr><td>Subject 4</td><td>{Number(result.sub4).toFixed(2)}</td></tr>
+//                 </tbody>
+//               </table>
+
+//               <h3>Average Percentage: {Number(result.avg_percentage).toFixed(2)}%</h3>
+//               <h3>CGPA: {Number(result.cgpa).toFixed(2)} / 10</h3>
+
+//               <p style={{marginTop:30}}>
+//                 __________________________ <br />
+//                 Principal, ABC College
+//               </p>
+//             </div>
+
+//             <button onClick={generateCertificate} className="button" style={{marginTop:20}}>
+//               Download Certificate
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+
+
+// import React, { useState } from 'react';
+// import jsPDF from 'jspdf';
+// import html2canvas from 'html2canvas';
+
+// const API_BASE = 'http://localhost:8080';
+
+// const initialMarks = {
+//   sub1_mid: '', sub1_end: '',
+//   sub2_mid: '', sub2_end: '',
+//   sub3_mid: '', sub3_end: '',
+//   sub4_mid: '', sub4_end: ''
+// };
+
+// export default function App2() {
+//   const [studentName, setStudentName] = useState('');
+//   const [marks, setMarks] = useState(initialMarks);
+//   const [error, setError] = useState('');
+//   const [result, setResult] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   function handleChange(e) {
+//     const { name, value } = e.target;
+//     // allow empty or integer numbers up to 50
+//     if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+//       setMarks(prev => ({ ...prev, [name]: value }));
+//     }
+//   }
+
+//   function validateInputs() {
+//     if (!studentName.trim()) return 'Please enter student name';
+//     for (const key of Object.keys(marks)) {
+//       const v = marks[key];
+//       if (v === '') return 'Please fill all marks';
+//       const n = Number(v);
+//       if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+//     }
+//     return null;
+//   }
+
+//   async function handleSubmit(e) {
+//     e.preventDefault();
+//     setError('');
+//     setResult(null);
+
+//     const err = validateInputs();
+//     if (err) { setError(err); return; }
+
+//     const payload = {
+//       student_name: studentName,
+//       ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+//     };
+
+//     try {
+//       setLoading(true);
+//       const res = await fetch(`${API_BASE}/api/results`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+
+//       const data = await res.json();
+//       setLoading(false);
+//       if (!res.ok) {
+//         setError(data?.error || 'Server error');
+//         return;
+//       }
+//       // data contains sub1..sub4, avg_percentage, cgpa
+//       setResult({ ...data, student_name: studentName });
+//     } catch (err) {
+//       setLoading(false);
+//       setError('Network error: ' + err.message);
+//     }
+//   }
+
+//   // local computation (same formula as backend)
+//   function computeLocally() {
+//     const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+//     const s1 = compute(marks.sub1_mid, marks.sub1_end);
+//     const s2 = compute(marks.sub2_mid, marks.sub2_end);
+//     const s3 = compute(marks.sub3_mid, marks.sub3_end);
+//     const s4 = compute(marks.sub4_mid, marks.sub4_end);
+//     const avg = (s1 + s2 + s3 + s4) / 4.0;
+//     const cgpa = avg / 10.0;
+//     return {
+//       per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+//       avg: Number(avg.toFixed(2)),
+//       cgpa: Number(cgpa.toFixed(2))
+//     };
+//   }
+
+//   const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+//   // PDF generation
+//   const generateCertificate = () => {
+//     const cert = document.getElementById('certificate');
+//     if (!cert) return;
+//     html2canvas(cert).then((canvas) => {
+//       const imgData = canvas.toDataURL('image/png');
+//       const pdf = new jsPDF('p', 'mm', 'a4');
+//       const imgProps = pdf.getImageProperties(imgData);
+//       const pdfWidth = pdf.internal.pageSize.getWidth();
+//       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+//       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+//       pdf.save(`${result.student_name}_Result_Certificate.pdf`);
+//     });
+//   };
+
+//   return (
+//     <div className="container">
+//       <h1 style={{ color: '#003366' }}>Vishwakarma Institute of Technology (VIT)</h1>
+//       <p className="small" style={{ color: '#555' }}>
+//         Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.
+//       </p>
+
+//       <form onSubmit={handleSubmit}>
+//         <div style={{ marginBottom: 12 }}>
+//           <div className="label">Student Name</div>
+//           <input
+//             className="input"
+//             value={studentName}
+//             onChange={e => setStudentName(e.target.value)}
+//             placeholder="e.g., Riya Patil"
+//           />
+//         </div>
+
+//         <div className="form-grid">
+//           {['1', '2', '3', '4'].map(num => (
+//             <React.Fragment key={num}>
+//               <div>
+//                 <div className="label">Subject {num} Midsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_mid`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_mid`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//               <div>
+//                 <div className="label">Subject {num} Endsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_end`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_end`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//             </React.Fragment>
+//           ))}
+//         </div>
+
+//         {error && <div className="error">{error}</div>}
+
+//         <div style={{ marginTop: 12 }}>
+//           <button
+//             className="button primary"
+//             type="submit"
+//             disabled={loading}
+//             style={{
+//               background: 'linear-gradient(90deg,#003366,#f57c00)',
+//               color: 'white',
+//               border: 'none'
+//             }}
+//           >
+//             {loading ? 'Calculating...' : 'Calculate & Save'}
+//           </button>
+//         </div>
+//       </form>
+
+//       <div className="results">
+//         {local && (
+//           <>
+//             <h3 style={{ color: '#003366' }}>Local Preview</h3>
+//             <table className="table">
+//               <thead>
+//                 <tr>
+//                   <th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{local.per[0]}</td>
+//                   <td>{local.per[1]}</td>
+//                   <td>{local.per[2]}</td>
+//                   <td>{local.per[3]}</td>
+//                   <td>{local.avg}</td>
+//                   <td>{local.cgpa}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </>
+//         )}
+
+//         {result && (
+//           <div style={{ marginTop: 14 }}>
+//             <h3 style={{ color: '#003366' }}>Saved Result</h3>
+//             <div className="success" style={{ color: '#f57c00' }}>Saved as ID: {result.id}</div>
+//             <div className="small">
+//               <strong>Server values:</strong>
+//             </div>
+
+//             <table className="table" style={{ marginTop: 8 }}>
+//               <thead>
+//                 <tr>
+//                   <th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{Number(result.sub1).toFixed(2)}</td>
+//                   <td>{Number(result.sub2).toFixed(2)}</td>
+//                   <td>{Number(result.sub3).toFixed(2)}</td>
+//                   <td>{Number(result.sub4).toFixed(2)}</td>
+//                   <td>{Number(result.avg_percentage).toFixed(2)}</td>
+//                   <td>{Number(result.cgpa).toFixed(2)}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+
+//             {/* Certificate Section */}
+//             <div
+//               id="certificate"
+//               style={{
+//                 marginTop: 20,
+//                 padding: 20,
+//                 border: '2px solid black',
+//                 textAlign: 'center',
+//                 background: 'white'
+//               }}
+//             >
+//               <h2 style={{ color: '#003366' }}>🏛️ Vishwakarma Institute of Technology (VIT)</h2>
+//               <h3>Certificate of Result</h3>
+//               <p>This is to certify that</p>
+//               <h2>{result.student_name}</h2>
+//               <p>has successfully completed the examinations with the following scores:</p>
+
+//               <table className="table" style={{ margin: '20px auto', width: '80%' }}>
+//                 <thead>
+//                   <tr><th>Subject</th><th>Final %</th></tr>
+//                 </thead>
+//                 <tbody>
+//                   <tr><td>Subject 1</td><td>{Number(result.sub1).toFixed(2)}</td></tr>
+//                   <tr><td>Subject 2</td><td>{Number(result.sub2).toFixed(2)}</td></tr>
+//                   <tr><td>Subject 3</td><td>{Number(result.sub3).toFixed(2)}</td></tr>
+//                   <tr><td>Subject 4</td><td>{Number(result.sub4).toFixed(2)}</td></tr>
+//                 </tbody>
+//               </table>
+
+//               <h3>Average Percentage: {Number(result.avg_percentage).toFixed(2)}%</h3>
+//               <h3>CGPA: {Number(result.cgpa).toFixed(2)} / 10</h3>
+
+//               <p style={{ marginTop: 30 }}>
+//                 __________________________ <br />
+//                 Principal, VIT Pune
+//               </p>
+//             </div>
+
+//             <button
+//               onClick={generateCertificate}
+//               className="button"
+//               style={{
+//                 marginTop: 20,
+//                 background: 'linear-gradient(90deg,#003366,#f57c00)',
+//                 color: 'white',
+//                 border: 'none'
+//               }}
+//             >
+//               Download Certificate
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+const API_BASE = 'http://localhost:8080';
+
+const initialMarks = {
+  sub1_mid: '', sub1_end: '',
+  sub2_mid: '', sub2_end: '',
+  sub3_mid: '', sub3_end: '',
+  sub4_mid: '', sub4_end: ''
+};
+
+export default function App2() {
+  const [studentName, setStudentName] = useState('');
+  const [marks, setMarks] = useState(initialMarks);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+      setMarks(prev => ({ ...prev, [name]: value }));
+    }
+  }
+
+  function validateInputs() {
+    if (!studentName.trim()) return 'Please enter student name';
+    for (const key of Object.keys(marks)) {
+      const v = marks[key];
+      if (v === '') return 'Please fill all marks';
+      const n = Number(v);
+      if (isNaN(n) || n < 0 || n > 50) return 'Marks must be between 0 and 50';
+    }
+    return null;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    setResult(null);
+
+    const err = validateInputs();
+    if (err) { setError(err); return; }
+
+    const payload = {
+      student_name: studentName,
+      ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+    };
+
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/api/results`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) {
+        setError(data?.error || 'Server error');
+        return;
+      }
+      setResult({ ...data, student_name: studentName });
+    } catch (err) {
+      setLoading(false);
+      setError('Network error: ' + err.message);
+    }
+  }
+
+  function computeLocally() {
+    const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+    const s1 = compute(marks.sub1_mid, marks.sub1_end);
+    const s2 = compute(marks.sub2_mid, marks.sub2_end);
+    const s3 = compute(marks.sub3_mid, marks.sub3_end);
+    const s4 = compute(marks.sub4_mid, marks.sub4_end);
+    const avg = (s1 + s2 + s3 + s4) / 4.0;
+    const cgpa = avg / 10.0;
+    return {
+      per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+      avg: Number(avg.toFixed(2)),
+      cgpa: Number(cgpa.toFixed(2))
+    };
+  }
+
+  const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+  const generateCertificate = () => {
+    const cert = document.getElementById('certificate');
+    if (!cert) return;
+    html2canvas(cert).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${result.student_name}_Result_Certificate.pdf`);
+    });
+  };
+
+  // Mapping for subject names (UI only)
+  const subjectNames = [
+    'Computer Networks',
+    'Algorithms',
+    'Cloud Computing',
+    'Artificial Neural Network'
+  ];
+
+  return (
+    <div className="container">
+      <h1 style={{ color: '#003366' }}>Vishwakarma Institute of Technology (VIT)</h1>
+      <p className="small" style={{ color: '#555' }}>
+        Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.
+      </p>
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
+          <div className="label">Student Name</div>
+          <input
+            className="input"
+            value={studentName}
+            onChange={e => setStudentName(e.target.value)}
+            placeholder="e.g., Riya Patil"
+          />
+        </div>
+
+        <div className="form-grid">
+          {subjectNames.map((subject, index) => {
+            const num = index + 1;
+            return (
+              <React.Fragment key={num}>
+                <div>
+                  <div className="label">{subject} — Midsem (max 50)</div>
+                  <input
+                    className="input"
+                    name={`sub${num}_mid`}
+                    type="number"
+                    min="0"
+                    max="50"
+                    step="1"
+                    value={marks[`sub${num}_mid`]}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <div className="label">{subject} — Endsem (max 50)</div>
+                  <input
+                    className="input"
+                    name={`sub${num}_end`}
+                    type="number"
+                    min="0"
+                    max="50"
+                    step="1"
+                    value={marks[`sub${num}_end`]}
+                    onChange={handleChange}
+                  />
+                </div>
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {error && <div className="error">{error}</div>}
+
+        <div style={{ marginTop: 12 }}>
+          <button
+            className="button primary"
+            type="submit"
+            disabled={loading}
+            style={{
+              background: 'linear-gradient(90deg,#003366,#f57c00)',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            {loading ? 'Calculating...' : 'Calculate & Save'}
+          </button>
+        </div>
+      </form>
+
+      <div className="results">
+        {local && (
+          <>
+            <h3 style={{ color: '#003366' }}>Local Preview</h3>
+            <table className="table">
+              <thead>
+                <tr>
+                  {subjectNames.map((s, i) => (
+                    <th key={i}>{s}</th>
+                  ))}
+                  <th>Avg %</th>
+                  <th>CGPA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {local.per.map((p, i) => (
+                    <td key={i}>{p}</td>
+                  ))}
+                  <td>{local.avg}</td>
+                  <td>{local.cgpa}</td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
+
+        {result && (
+          <div style={{ marginTop: 14 }}>
+            <h3 style={{ color: '#003366' }}>Saved Result</h3>
+            <div className="success" style={{ color: '#f57c00' }}>Saved as ID: {result.id}</div>
+            <div className="small">
+              <strong>Server values:</strong>
+            </div>
+            <table className="table" style={{ marginTop: 8 }}>
+              <thead>
+                <tr>
+                  {subjectNames.map((s, i) => (
+                    <th key={i}>{s}</th>
+                  ))}
+                  <th>Avg %</th>
+                  <th>CGPA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{Number(result.sub1).toFixed(2)}</td>
+                  <td>{Number(result.sub2).toFixed(2)}</td>
+                  <td>{Number(result.sub3).toFixed(2)}</td>
+                  <td>{Number(result.sub4).toFixed(2)}</td>
+                  <td>{Number(result.avg_percentage).toFixed(2)}</td>
+                  <td>{Number(result.cgpa).toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Certificate Section */}
+            <div
+              id="certificate"
+              style={{
+                marginTop: 20,
+                padding: 20,
+                border: '2px solid black',
+                textAlign: 'center',
+                background: 'white'
+              }}
+            >
+              <h2 style={{ color: '#003366' }}>🏛️ Vishwakarma Institute of Technology (VIT)</h2>
+              <h3>Certificate of Result</h3>
+              <p>This is to certify that</p>
+              <h2>{result.student_name}</h2>
+              <p>has successfully completed the examinations with the following scores:</p>
+
+              <table className="table" style={{ margin: '20px auto', width: '80%' }}>
+                <thead>
+                  <tr><th>Subject</th><th>Final %</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Computer Networks</td><td>{Number(result.sub1).toFixed(2)}</td></tr>
+                  <tr><td>Algorithms</td><td>{Number(result.sub2).toFixed(2)}</td></tr>
+                  <tr><td>Cloud Computing</td><td>{Number(result.sub3).toFixed(2)}</td></tr>
+                  <tr><td>Artificial Neural Network</td><td>{Number(result.sub4).toFixed(2)}</td></tr>
+                </tbody>
+              </table>
+
+              <h3>Average Percentage: {Number(result.avg_percentage).toFixed(2)}%</h3>
+              <h3>CGPA: {Number(result.cgpa).toFixed(2)} / 10</h3>
+
+              <p style={{ marginTop: 30 }}>
+                __________________________ <br />
+                Principal, VIT Pune
+              </p>
+            </div>
+
+            <button
+              onClick={generateCertificate}
+              className="button"
+              style={{
+                marginTop: 20,
+                background: 'linear-gradient(90deg,#003366,#f57c00)',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              Download Certificate
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="college-frontend/src/App2.jsx">
+// import React, { useState } from 'react';
+
+// const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost';
+
+// const initialMarks = {
+//   sub1_mid: '', sub1_end: '',
+//   sub2_mid: '', sub2_end: '',
+//   sub3_mid: '', sub3_end: '',
+//   sub4_mid: '', sub4_end: ''
+// };
+
+// export default function App() {
+//   const [studentName, setStudentName] = useState('');
+//   const [marks, setMarks] = useState(initialMarks);
+//   const [error, setError] = useState('');
+//   const [result, setResult] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   function handleChange(e) {
+//     const { name, value } = e.target;
+//     // allow empty or integer numbers up to 50
+//     if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+//       setMarks(prev => ({ ...prev, [name]: value }));
+//     }
+//   }
+
+//   function validateInputs() {
+//     if (!studentName.trim()) return 'Please enter student name';
+//     for (const key of Object.keys(marks)) {
+//       const v = marks[key];
+//       if (v === '') return 'Please fill all marks';
+//       const n = Number(v);
+//       if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+//     }
+//     return null;
+//   }
+
+//   async function handleSubmit(e) {
+//     e.preventDefault();
+//     setError('');
+//     setResult(null);
+
+//     const err = validateInputs();
+//     if (err) { setError(err); return; }
+
+//     const payload = {
+//       student_name: studentName,
+//       ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+//     };
+
+//     try {
+//       setLoading(true);
+//       const res = await fetch(`${API_BASE}/result_api/save_result.php`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+//       const data = await res.json();
+//       setLoading(false);
+//       if (!res.ok) {
+//         setError(data?.error || 'Server error');
+//         return;
+//       }
+//       // data contains sub1..sub4, avg_percentage, cgpa
+//       setResult(data);
+//     } catch (err) {
+//       setLoading(false);
+//       setError('Network error: ' + err.message);
+//     }
+//   }
+
+//   // local computation (same formula as backend)
+//   function computeLocally() {
+//     const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+//     const s1 = compute(marks.sub1_mid, marks.sub1_end);
+//     const s2 = compute(marks.sub2_mid, marks.sub2_end);
+//     const s3 = compute(marks.sub3_mid, marks.sub3_end);
+//     const s4 = compute(marks.sub4_mid, marks.sub4_end);
+//     const avg = (s1 + s2 + s3 + s4) / 4.0;
+//     const cgpa = avg / 10.0;
+//     return {
+//       per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+//       avg: Number(avg.toFixed(2)),
+//       cgpa: Number(cgpa.toFixed(2))
+//     };
+//   }
+
+//   const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+//   return (
+//     <div className="container">
+//       <h1>College Result Calculator</h1>
+//       <p className="small">Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.</p>
+
+//       <form onSubmit={handleSubmit}>
+//         <div style={{ marginBottom: 12 }}>
+//           <div className="label">Student Name</div>
+//           <input className="input" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g., John Doe" />
+//         </div>
+
+//         <div className="form-grid">
+//           {['1','2','3','4'].map(num => (
+//             <React.Fragment key={num}>
+//               <div>
+//                 <div className="label">Subject {num} Midsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_mid`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_mid`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//               <div>
+//                 <div className="label">Subject {num} Endsem (max 50)</div>
+//                 <input
+//                   className="input"
+//                   name={`sub${num}_end`}
+//                   type="number"
+//                   min="0"
+//                   max="50"
+//                   step="1"
+//                   value={marks[`sub${num}_end`]}
+//                   onChange={handleChange}
+//                 />
+//               </div>
+//             </React.Fragment>
+//           ))}
+//         </div>
+
+//         {error && <div className="error">{error}</div>}
+
+//         <div style={{ marginTop: 12 }}>
+//           <button className="button" type="submit" disabled={loading}>
+//             {loading ? 'Calculating...' : 'Calculate & Save'}
+//           </button>
+//         </div>
+//       </form>
+
+//       <div className="results">
+//         {local && (
+//           <>
+//             <h3>Local Preview</h3>
+//             <table className="table">
+//               <thead>
+//                 <tr><th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{local.per[0]}</td>
+//                   <td>{local.per[1]}</td>
+//                   <td>{local.per[2]}</td>
+//                   <td>{local.per[3]}</td>
+//                   <td>{local.avg}</td>
+//                   <td>{local.cgpa}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </>
+//         )}
+
+//         {result && (
+//           <div style={{ marginTop: 14 }}>
+//             <h3>Saved Result</h3>
+//             <div className="success">Saved as ID: {result.id}</div>
+//             <div className="small">
+//               <strong>Server values:</strong>
+//             </div>
+//             <table className="table" style={{marginTop:8}}>
+//               <thead>
+//                 <tr><th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th></tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td>{Number(result.sub1).toFixed(2)}</td>
+//                   <td>{Number(result.sub2).toFixed(2)}</td>
+//                   <td>{Number(result.sub3).toFixed(2)}</td>
+//                   <td>{Number(result.sub4).toFixed(2)}</td>
+//                   <td>{Number(result.avg_percentage).toFixed(2)}</td>
+//                   <td>{Number(result.cgpa).toFixed(2)}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost';
+
+const initialMarks = {
+  sub1_mid: '', sub1_end: '',
+  sub2_mid: '', sub2_end: '',
+  sub3_mid: '', sub3_end: '',
+  sub4_mid: '', sub4_end: ''
+};
+
+export default function App() {
+  const [studentName, setStudentName] = useState('');
+  const [marks, setMarks] = useState(initialMarks);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    // allow empty or integer numbers up to 50
+    if (value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 50)) {
+      setMarks(prev => ({ ...prev, [name]: value }));
+    }
+  }
+
+  function validateInputs() {
+    if (!studentName.trim()) return 'Please enter student name';
+    for (const key of Object.keys(marks)) {
+      const v = marks[key];
+      if (v === '') return 'Please fill all marks';
+      const n = Number(v);
+      if (isNaN(n) || n < 0 || n > 50) return 'Marks must be numbers between 0 and 50';
+    }
+    return null;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    setResult(null);
+
+    const err = validateInputs();
+    if (err) { setError(err); return; }
+
+    const payload = {
+      student_name: studentName,
+      ...Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, Number(v)]))
+    };
+
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/result_api/save_result.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) {
+        setError(data?.error || 'Server error');
+        return;
+      }
+      // data contains sub1..sub4, avg_percentage, cgpa
+      setResult({ ...data, student_name: studentName });
+    } catch (err) {
+      setLoading(false);
+      setError('Network error: ' + err.message);
+    }
+  }
+
+  // local computation (same formula as backend)
+  function computeLocally() {
+    const compute = (m, e) => ((Number(m) / 50.0) * 30.0 + (Number(e) / 50.0) * 70.0);
+    const s1 = compute(marks.sub1_mid, marks.sub1_end);
+    const s2 = compute(marks.sub2_mid, marks.sub2_end);
+    const s3 = compute(marks.sub3_mid, marks.sub3_end);
+    const s4 = compute(marks.sub4_mid, marks.sub4_end);
+    const avg = (s1 + s2 + s3 + s4) / 4.0;
+    const cgpa = avg / 10.0;
+    return {
+      per: [s1, s2, s3, s4].map(x => Number(x.toFixed(2))),
+      avg: Number(avg.toFixed(2)),
+      cgpa: Number(cgpa.toFixed(2))
+    };
+  }
+
+  const local = (marks.sub1_mid !== '') ? computeLocally() : null;
+
+  // PDF generation
+  const generateCertificate = () => {
+    const cert = document.getElementById('certificate');
+    if (!cert) return;
+    html2canvas(cert).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${result.student_name}_Result_Certificate.pdf`);
+    });
+  };
+
+  return (
+    <div className="container">
+      <h1>College Result Calculator</h1>
+      <p className="small">Enter marks (Mid out of 50, End out of 50). Mid = 30%, End = 70%.</p>
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
+          <div className="label">Student Name</div>
+          <input className="input" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g., John Doe" />
+        </div>
+
+        <div className="form-grid">
+          {['1','2','3','4'].map(num => (
+            <React.Fragment key={num}>
+              <div>
+                <div className="label">Subject {num} Midsem (max 50)</div>
+                <input
+                  className="input"
+                  name={`sub${num}_mid`}
+                  type="number"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={marks[`sub${num}_mid`]}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <div className="label">Subject {num} Endsem (max 50)</div>
+                <input
+                  className="input"
+                  name={`sub${num}_end`}
+                  type="number"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={marks[`sub${num}_end`]}
+                  onChange={handleChange}
+                />
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+
+        {error && <div className="error">{error}</div>}
+
+        <div style={{ marginTop: 12 }}>
+          <button className="button" type="submit" disabled={loading}>
+            {loading ? 'Calculating...' : 'Calculate & Save'}
+          </button>
+        </div>
+      </form>
+
+      <div className="results">
+        {local && (
+          <>
+            <h3>Local Preview</h3>
+            <table className="table">
+              <thead>
+                <tr><th>Sub 1</th><th>Sub 2</th><th>Sub 3</th><th>Sub 4</th><th>Avg %</th><th>CGPA</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{local.per[0]}</td>
+                  <td>{local.per[1]}</td>
+                  <td>{local.per[2]}</td>
+                  <td>{local.per[3]}</td>
+                  <td>{local.avg}</td>
+                  <td>{local.cgpa}</td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
+
+        {result && (
+          <div style={{ marginTop: 14 }}>
+            <h3>Saved Result</h3>
+            <div className="success">Saved as ID: {result.id}</div>
+            <div className="small">
+              <strong>Server values:</strong>
+            </div>
+            <table className="table" style={{marginTop:8}}>
+              <thead>
+                <tr><th>Sub1</th><th>Sub2</th><th>Sub3</th><th>Sub4</th><th>Avg %</th><th>CGPA</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{Number(result.sub1).toFixed(2)}</td>
+                  <td>{Number(result.sub2).toFixed(2)}</td>
+                  <td>{Number(result.sub3).toFixed(2)}</td>
+                  <td>{Number(result.sub4).toFixed(2)}</td>
+                  <td>{Number(result.avg_percentage).toFixed(2)}</td>
+                  <td>{Number(result.cgpa).toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Certificate Section */}
+            <div id="certificate" style={{marginTop:20, padding:20, border:"2px solid black", textAlign:"center", background:"white"}}>
+              <h2>🏛️ ABC College of Engineering</h2>
+              <h3>Certificate of Result</h3>
+              <p>This is to certify that</p>
+              <h2>{result.student_name}</h2>
+              <p>has successfully completed the examinations with the following scores:</p>
+
+              <table className="table" style={{margin:"20px auto", width:"80%"}}>
+                <thead>
+                  <tr><th>Subject</th><th>Final %</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Subject 1</td><td>{Number(result.sub1).toFixed(2)}</td></tr>
+                  <tr><td>Subject 2</td><td>{Number(result.sub2).toFixed(2)}</td></tr>
+                  <tr><td>Subject 3</td><td>{Number(result.sub3).toFixed(2)}</td></tr>
+                  <tr><td>Subject 4</td><td>{Number(result.sub4).toFixed(2)}</td></tr>
+                </tbody>
+              </table>
+
+              <h3>Average Percentage: {Number(result.avg_percentage).toFixed(2)}%</h3>
+              <h3>CGPA: {Number(result.cgpa).toFixed(2)} / 10</h3>
+
+              <p style={{marginTop:30}}>
+                __________________________ <br />
+                Principal, ABC College
+              </p>
+            </div>
+
+            <button onClick={generateCertificate} className="button" style={{marginTop:20}}>
+              Download Certificate
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="college-frontend/src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="college-frontend/src/index_old.css">
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body { margin: 0; padding: 20px; background: #f7f7fb; color: #222; }
+.container { max-width: 780px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+h1 { margin-top: 0; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.label { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+.input { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+.button { background: #2563eb; color: white; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.results { margin-top: 18px; }
+.small { font-size: 13px; color: #555; }
+.error { color: #b91c1c; font-weight: 600; }
+.success { color: #15803d; font-weight: 700; }
+.table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.table th, .table td { border: 1px solid #eee; padding: 8px; text-align: center; }
+</file>
+
+<file path="college-frontend/src/index.css">
+/* base */
+* { box-sizing: border-box; font-family: "Inter", Arial, sans-serif; }
+body { margin: 0; padding: 20px; background: #f4f7fb; color: #111827; -webkit-font-smoothing:antialiased; }
+.container { max-width: 980px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(20,20,40,0.06); }
+
+/* header */
+.header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom: 18px; }
+.brand { display:flex; gap:14px; align-items:center; }
+.brand-badge { background: linear-gradient(135deg,#003366,#004c99); color: white; font-weight:900; padding: 12px 14px; border-radius: 10px; font-size:18px; box-shadow: 0 6px 18px rgba(0,51,102,0.15); }
+.brand h1 { margin:0; font-size:18px; line-height:1; color:#003366; }
+.tagline { margin: 0; font-size: 13px; color:#6b7280; }
+
+/* cards & sections */
+.card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 18px; border: 1px solid rgba(15,23,42,0.05); }
+.form-card { padding-bottom: 12px; }
+.section-title { margin:0 0 8px 0; font-size:16px; color:#003366; }
+.small { font-size:13px; color:#6b7280; }
+
+/* forms */
+.form-grid-outer { display:block; margin-top: 10px; }
+.row { margin-bottom: 12px; }
+.form-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.small-input .input { padding:8px; font-size:14px; }
+.label { font-weight:600; font-size:13px; margin-bottom: 6px; color:#111827; display:block; }
+.input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6e9ef; background: #fff; font-size:14px; outline:none; }
+.input:focus { border-color:#003366; box-shadow: 0 6px 18px rgba(0,51,102,0.08); }
+
+/* buttons */
+.actions { display:flex; gap:10px; align-items:center; margin-top: 6px; }
+.button { border: none; padding: 10px 14px; border-radius: 10px; font-weight:700; cursor:pointer; transition: all 0.2s ease; }
+.button.primary { background: linear-gradient(90deg,#003366,#f57c00); color:#fff; box-shadow: 0 8px 22px rgba(0,51,102,0.15); }
+.button.primary:hover { transform: scale(1.03); }
+.button.ghost { background: #fff; border: 1px solid #e6e9ef; color:#003366; }
+.button:disabled { opacity:0.6; cursor:not-allowed; }
+
+/* results */
+.result-card { padding-bottom: 10px; }
+.preview-row { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+.preview-left, .preview-right { flex:1 1 340px; min-width:260px; }
+.small-title { margin:0 0 8px 0; font-size:14px; color:#003366; }
+
+/* progress bars */
+.progress-grid { display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom: 10px; }
+.progress-item { display:block; }
+.progress-label { font-size:13px; margin-bottom:6px; color:#374151; }
+.progress-bar { background:#eaf2ff; border-radius:999px; width:100%; height:28px; overflow:hidden; position:relative; border:1px solid rgba(18,24,33,0.05); }
+.progress-fill { height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; font-weight:700; border-radius:999px; background: linear-gradient(90deg,#f57c00,#ffb74d); color:white; transition: width 450ms ease; }
+.progress-text { font-size:13px; }
+
+/* table */
+.table { width:100%; border-collapse: collapse; margin-top: 8px; }
+.table th, .table td { border: 1px solid #f1f5f9; padding: 10px; text-align: center; font-size:14px; }
+.table.compact th, .table.compact td { padding:8px; }
+
+/* certificate (styled for good PDF export) */
+.certificate { width: 100%; margin-top:18px; display: none; } /* hidden in page but rendered for pdf */
+.certificate .cert-inner { max-width: 800px; margin: 0 auto; padding: 26px; background: #fff; border: 6px solid #e0e7ff; border-radius: 8px; color:#111827; }
+.cert-header { display:flex; gap:14px; align-items:center; margin-bottom: 6px; }
+.cert-badge { width:72px; height:72px; border-radius:12px; background: linear-gradient(135deg,#003366,#f57c00); color: #fff; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:22px; box-shadow: 0 8px 30px rgba(0,51,102,0.1); }
+.cert-college { font-weight:800; font-size:18px; color:#003366; }
+.cert-campus { color:#6b7280; font-size:13px; }
+
+/* certificate body */
+.cert-body { text-align:center; padding: 12px 4px 8px; }
+.cert-name { margin: 6px 0 8px; font-size:20px; color:#003366; }
+.cert-table { margin: 12px auto; width:80%; }
+.cert-stats { display:flex; justify-content:center; gap:24px; margin-top:10px; font-weight:700; color:#003366; }
+.cert-footer { display:flex; justify-content:space-between; margin-top:30px; font-size:14px; }
+
+/* footer */
+.footer { display:flex; justify-content:space-between; align-items:center; margin-top: 12px; font-size:13px; color:#6b7280; }
+
+/* misc */
+.error { color: #b91c1c; font-weight: 700; margin-top:6px; }
+.saved-meta { margin-bottom:10px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.saved-date { color:#6b7280; font-size:13px; }
+
+/* responsive */
+@media (max-width:860px) {
+  .preview-row { flex-direction: column; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+/* make certificate visible for pdf generation */
+@media print {
+  body * { visibility: hidden; }
+  #certificate, #certificate * { visibility: visible; }
+  #certificate { position: absolute; left: 0; top: 0; width: 100%; display:block; }
+}
+</file>
+
+<file path="college-frontend/src/main.jsx">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './index.css';
+
+createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+</file>
+
+<file path="college-frontend/vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+<file path="result-service/.gitattributes">
+/mvnw text eol=lf
+*.cmd text eol=crlf
+</file>
+
+<file path="result-service/.gitignore">
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+</file>
+
+<file path="result-service/.mvn/wrapper/maven-wrapper.properties">
+wrapperVersion=3.3.4
+distributionType=only-script
+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip
+</file>
+
+<file path="result-service/how_to_run.txt">
+1. Open XAAMP Server and run apache and mysql
+2. In result-service (PS E:\Data\project\result-service>) run this : .\mvnw.cmd spring-boot:run
+3. PS E:\VIT PUNE '27\T.Y - SEM 1\Comp Network Tech\Lab\08_LAB2\college-frontend> npm run dev               
+
+> result-calculator@0.0.0 dev
+> vite
+
+
+  VITE v7.1.6  ready in 1807 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+</file>
+
+<file path="result-service/mvnw">
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup batch script, version 3.3.4
+#
+# Optional ENV vars
+# -----------------
+#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
+#   MVNW_REPOURL - repo url base for downloading maven distribution
+#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
+# ----------------------------------------------------------------------------
+
+set -euf
+[ "${MVNW_VERBOSE-}" != debug ] || set -x
+
+# OS specific support.
+native_path() { printf %s\\n "$1"; }
+case "$(uname)" in
+CYGWIN* | MINGW*)
+  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
+  native_path() { cygpath --path --windows "$1"; }
+  ;;
+esac
+
+# set JAVACMD and JAVACCMD
+set_java_home() {
+  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
+  if [ -n "${JAVA_HOME-}" ]; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+      JAVACCMD="$JAVA_HOME/jre/sh/javac"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+      JAVACCMD="$JAVA_HOME/bin/javac"
+
+      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
+        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
+        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
+        return 1
+      fi
+    fi
+  else
+    JAVACMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v java
+    )" || :
+    JAVACCMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v javac
+    )" || :
+
+    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
+      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
+      return 1
+    fi
+  fi
+}
+
+# hash string like Java String::hashCode
+hash_string() {
+  str="${1:-}" h=0
+  while [ -n "$str" ]; do
+    char="${str%"${str#?}"}"
+    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
+    str="${str#?}"
+  done
+  printf %x\\n $h
+}
+
+verbose() { :; }
+[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
+
+die() {
+  printf %s\\n "$1" >&2
+  exit 1
+}
+
+trim() {
+  # MWRAPPER-139:
+  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
+  #   Needed for removing poorly interpreted newline sequences when running in more
+  #   exotic environments such as mingw bash on Windows.
+  printf "%s" "${1}" | tr -d '[:space:]'
+}
+
+scriptDir="$(dirname "$0")"
+scriptName="$(basename "$0")"
+
+# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
+while IFS="=" read -r key value; do
+  case "${key-}" in
+  distributionUrl) distributionUrl=$(trim "${value-}") ;;
+  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
+  esac
+done <"$scriptDir/.mvn/wrapper/maven-wrapper.properties"
+[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+
+case "${distributionUrl##*/}" in
+maven-mvnd-*bin.*)
+  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
+  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
+  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
+  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
+  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
+  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
+  *)
+    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
+    distributionPlatform=linux-amd64
+    ;;
+  esac
+  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
+  ;;
+maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
+*) MVN_CMD="mvn${scriptName#mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
+esac
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
+distributionUrlName="${distributionUrl##*/}"
+distributionUrlNameMain="${distributionUrlName%.*}"
+distributionUrlNameMain="${distributionUrlNameMain%-bin}"
+MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
+
+exec_maven() {
+  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
+  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
+}
+
+if [ -d "$MAVEN_HOME" ]; then
+  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  exec_maven "$@"
+fi
+
+case "${distributionUrl-}" in
+*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
+*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
+esac
+
+# prepare tmp dir
+if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
+  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
+  trap clean HUP INT TERM EXIT
+else
+  die "cannot create temp dir"
+fi
+
+mkdir -p -- "${MAVEN_HOME%/*}"
+
+# Download and Install Apache Maven
+verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+verbose "Downloading from: $distributionUrl"
+verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+# select .zip or .tar.gz
+if ! command -v unzip >/dev/null; then
+  distributionUrl="${distributionUrl%.zip}.tar.gz"
+  distributionUrlName="${distributionUrl##*/}"
+fi
+
+# verbose opt
+__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
+[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
+
+# normalize http auth
+case "${MVNW_PASSWORD:+has-password}" in
+'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+esac
+
+if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
+  verbose "Found wget ... using wget"
+  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
+elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
+  verbose "Found curl ... using curl"
+  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
+elif set_java_home; then
+  verbose "Falling back to use Java to download"
+  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
+  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+  cat >"$javaSource" <<-END
+	public class Downloader extends java.net.Authenticator
+	{
+	  protected java.net.PasswordAuthentication getPasswordAuthentication()
+	  {
+	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
+	  }
+	  public static void main( String[] args ) throws Exception
+	  {
+	    setDefault( new Downloader() );
+	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
+	  }
+	}
+	END
+  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+  verbose " - Compiling Downloader.java ..."
+  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+  verbose " - Running Downloader.java ..."
+  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+fi
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+if [ -n "${distributionSha256Sum-}" ]; then
+  distributionSha256Result=false
+  if [ "$MVN_CMD" = mvnd.sh ]; then
+    echo "Checksum validation is not supported for maven-mvnd." >&2
+    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  elif command -v sha256sum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c - >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  elif command -v shasum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  else
+    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
+    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  fi
+  if [ $distributionSha256Result = false ]; then
+    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
+    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
+    exit 1
+  fi
+fi
+
+# unzip and move
+if command -v unzip >/dev/null; then
+  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
+else
+  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
+fi
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+actualDistributionDir=""
+
+# First try the expected directory name (for regular distributions)
+if [ -d "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" ]; then
+  if [ -f "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/bin/$MVN_CMD" ]; then
+    actualDistributionDir="$distributionUrlNameMain"
+  fi
+fi
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if [ -z "$actualDistributionDir" ]; then
+  # enable globbing to iterate over items
+  set +f
+  for dir in "$TMP_DOWNLOAD_DIR"/*; do
+    if [ -d "$dir" ]; then
+      if [ -f "$dir/bin/$MVN_CMD" ]; then
+        actualDistributionDir="$(basename "$dir")"
+        break
+      fi
+    fi
+  done
+  set -f
+fi
+
+if [ -z "$actualDistributionDir" ]; then
+  verbose "Contents of $TMP_DOWNLOAD_DIR:"
+  verbose "$(ls -la "$TMP_DOWNLOAD_DIR")"
+  die "Could not find Maven distribution directory in extracted archive"
+fi
+
+verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$actualDistributionDir/mvnw.url"
+mv -- "$TMP_DOWNLOAD_DIR/$actualDistributionDir" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
+
+clean || :
+exec_maven "$@"
+</file>
+
+<file path="result-service/mvnw.cmd">
+<# : batch portion
+@REM ----------------------------------------------------------------------------
+@REM Licensed to the Apache Software Foundation (ASF) under one
+@REM or more contributor license agreements.  See the NOTICE file
+@REM distributed with this work for additional information
+@REM regarding copyright ownership.  The ASF licenses this file
+@REM to you under the Apache License, Version 2.0 (the
+@REM "License"); you may not use this file except in compliance
+@REM with the License.  You may obtain a copy of the License at
+@REM
+@REM    http://www.apache.org/licenses/LICENSE-2.0
+@REM
+@REM Unless required by applicable law or agreed to in writing,
+@REM software distributed under the License is distributed on an
+@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+@REM KIND, either express or implied.  See the License for the
+@REM specific language governing permissions and limitations
+@REM under the License.
+@REM ----------------------------------------------------------------------------
+
+@REM ----------------------------------------------------------------------------
+@REM Apache Maven Wrapper startup batch script, version 3.3.4
+@REM
+@REM Optional ENV vars
+@REM   MVNW_REPOURL - repo url base for downloading maven distribution
+@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
+@REM ----------------------------------------------------------------------------
+
+@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+@SET __MVNW_CMD__=
+@SET __MVNW_ERROR__=
+@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
+@SET PSModulePath=
+@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
+  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
+)
+@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
+@SET __MVNW_PSMODULEP_SAVE=
+@SET __MVNW_ARG0_NAME__=
+@SET MVNW_USERNAME=
+@SET MVNW_PASSWORD=
+@IF NOT "%__MVNW_CMD__%"=="" ("%__MVNW_CMD__%" %*)
+@echo Cannot start maven from wrapper >&2 && exit /b 1
+@GOTO :EOF
+: end batch / begin powershell #>
+
+$ErrorActionPreference = "Stop"
+if ($env:MVNW_VERBOSE -eq "true") {
+  $VerbosePreference = "Continue"
+}
+
+# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
+$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
+if (!$distributionUrl) {
+  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+}
+
+switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
+  "maven-mvnd-*" {
+    $USE_MVND = $true
+    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
+    $MVN_CMD = "mvnd.cmd"
+    break
+  }
+  default {
+    $USE_MVND = $false
+    $MVN_CMD = $script -replace '^mvnw','mvn'
+    break
+  }
+}
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+if ($env:MVNW_REPOURL) {
+  $MVNW_REPO_PATTERN = if ($USE_MVND -eq $False) { "/org/apache/maven/" } else { "/maven/mvnd/" }
+  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace "^.*$MVNW_REPO_PATTERN",'')"
+}
+$distributionUrlName = $distributionUrl -replace '^.*/',''
+$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
+
+$MAVEN_M2_PATH = "$HOME/.m2"
+if ($env:MAVEN_USER_HOME) {
+  $MAVEN_M2_PATH = "$env:MAVEN_USER_HOME"
+}
+
+if (-not (Test-Path -Path $MAVEN_M2_PATH)) {
+    New-Item -Path $MAVEN_M2_PATH -ItemType Directory | Out-Null
+}
+
+$MAVEN_WRAPPER_DISTS = $null
+if ((Get-Item $MAVEN_M2_PATH).Target[0] -eq $null) {
+  $MAVEN_WRAPPER_DISTS = "$MAVEN_M2_PATH/wrapper/dists"
+} else {
+  $MAVEN_WRAPPER_DISTS = (Get-Item $MAVEN_M2_PATH).Target[0] + "/wrapper/dists"
+}
+
+$MAVEN_HOME_PARENT = "$MAVEN_WRAPPER_DISTS/$distributionUrlNameMain"
+$MAVEN_HOME_NAME = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
+$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
+
+if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
+  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+  exit $?
+}
+
+if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
+  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
+}
+
+# prepare tmp dir
+$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
+$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
+$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
+trap {
+  if ($TMP_DOWNLOAD_DIR.Exists) {
+    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+  }
+}
+
+New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
+
+# Download and Install Apache Maven
+Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+Write-Verbose "Downloading from: $distributionUrl"
+Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+$webclient = New-Object System.Net.WebClient
+if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
+  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
+}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
+if ($distributionSha256Sum) {
+  if ($USE_MVND) {
+    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
+  }
+  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
+  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
+    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
+  }
+}
+
+# unzip and move
+Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+$actualDistributionDir = ""
+
+# First try the expected directory name (for regular distributions)
+$expectedPath = Join-Path "$TMP_DOWNLOAD_DIR" "$distributionUrlNameMain"
+$expectedMvnPath = Join-Path "$expectedPath" "bin/$MVN_CMD"
+if ((Test-Path -Path $expectedPath -PathType Container) -and (Test-Path -Path $expectedMvnPath -PathType Leaf)) {
+  $actualDistributionDir = $distributionUrlNameMain
+}
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if (!$actualDistributionDir) {
+  Get-ChildItem -Path "$TMP_DOWNLOAD_DIR" -Directory | ForEach-Object {
+    $testPath = Join-Path $_.FullName "bin/$MVN_CMD"
+    if (Test-Path -Path $testPath -PathType Leaf) {
+      $actualDistributionDir = $_.Name
+    }
+  }
+}
+
+if (!$actualDistributionDir) {
+  Write-Error "Could not find Maven distribution directory in extracted archive"
+}
+
+Write-Verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+Rename-Item -Path "$TMP_DOWNLOAD_DIR/$actualDistributionDir" -NewName $MAVEN_HOME_NAME | Out-Null
+try {
+  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
+} catch {
+  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
+    Write-Error "fail to move MAVEN_HOME"
+  }
+} finally {
+  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+}
+
+Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+</file>
+
+<file path="result-service/pom.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.6</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>result-service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>result-service</name>
+	<description>Demo project for Spring Boot</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+</file>
+
+<file path="result-service/src/main/java/com/example/result_service/controller/ResultController.java">
+package com.example.result_service.controller;
+
+import com.example.result_service.dto.ResultRequest;
+import com.example.result_service.dto.ResultResponse;
+import com.example.result_service.model.ResultEntity;
+import com.example.result_service.repository.ResultRepository;
+import com.example.result_service.service.ResultService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/results")
+@CrossOrigin(origins = "*") // during dev allow all; tighten in production
+public class ResultController {
+
+    private final ResultService service;
+    private final ResultRepository repo;
+
+    public ResultController(ResultService service, ResultRepository repo) {
+        this.service = service;
+        this.repo = repo;
+    }
+
+    @PostMapping
+    public ResponseEntity<ResultResponse> create(@RequestBody ResultRequest req) {
+        ResultResponse res = service.save(req);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ResultEntity>> list() {
+        return ResponseEntity.ok(repo.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResultEntity> getById(@PathVariable Long id) {
+        return repo.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+}
+</file>
+
+<file path="result-service/src/main/java/com/example/result_service/dto/ResultRequest.java">
+package com.example.result_service.dto;
+
+public class ResultRequest {
+    private String student_name;
+    private Integer sub1_mid, sub1_end, sub2_mid, sub2_end, sub3_mid, sub3_end, sub4_mid, sub4_end;
+
+    // getters and setters
+    public String getStudent_name() { return student_name; }
+    public void setStudent_name(String student_name) { this.student_name = student_name; }
+
+    public Integer getSub1_mid() { return sub1_mid; }
+    public void setSub1_mid(Integer sub1_mid) { this.sub1_mid = sub1_mid; }
+    public Integer getSub1_end() { return sub1_end; }
+    public void setSub1_end(Integer sub1_end) { this.sub1_end = sub1_end; }
+
+    public Integer getSub2_mid() { return sub2_mid; }
+    public void setSub2_mid(Integer sub2_mid) { this.sub2_mid = sub2_mid; }
+    public Integer getSub2_end() { return sub2_end; }
+    public void setSub2_end(Integer sub2_end) { this.sub2_end = sub2_end; }
+
+    public Integer getSub3_mid() { return sub3_mid; }
+    public void setSub3_mid(Integer sub3_mid) { this.sub3_mid = sub3_mid; }
+    public Integer getSub3_end() { return sub3_end; }
+    public void setSub3_end(Integer sub3_end) { this.sub3_end = sub3_end; }
+
+    public Integer getSub4_mid() { return sub4_mid; }
+    public void setSub4_mid(Integer sub4_mid) { this.sub4_mid = sub4_mid; }
+    public Integer getSub4_end() { return sub4_end; }
+    public void setSub4_end(Integer sub4_end) { this.sub4_end = sub4_end; }
+}
+</file>
+
+<file path="result-service/src/main/java/com/example/result_service/dto/ResultResponse.java">
+package com.example.result_service.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class ResultResponse {
+    private Long id;
+
+    @JsonProperty("sub1")
+    private double sub1;
+    @JsonProperty("sub2")
+    private double sub2;
+    @JsonProperty("sub3")
+    private double sub3;
+    @JsonProperty("sub4")
+    private double sub4;
+
+    @JsonProperty("avg_percentage")
+    private double avg_percentage;
+
+    private double cgpa;
+
+    public ResultResponse() {}
+
+    public ResultResponse(Long id, double sub1, double sub2, double sub3, double sub4, double avg_percentage, double cgpa) {
+        this.id = id;
+        this.sub1 = sub1;
+        this.sub2 = sub2;
+        this.sub3 = sub3;
+        this.sub4 = sub4;
+        this.avg_percentage = avg_percentage;
+        this.cgpa = cgpa;
+    }
+
+    // getters/setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public double getSub1() { return sub1; }
+    public void setSub1(double sub1) { this.sub1 = sub1; }
+
+    public double getSub2() { return sub2; }
+    public void setSub2(double sub2) { this.sub2 = sub2; }
+
+    public double getSub3() { return sub3; }
+    public void setSub3(double sub3) { this.sub3 = sub3; }
+
+    public double getSub4() { return sub4; }
+    public void setSub4(double sub4) { this.sub4 = sub4; }
+
+    public double getAvg_percentage() { return avg_percentage; }
+    public void setAvg_percentage(double avg_percentage) { this.avg_percentage = avg_percentage; }
+
+    public double getCgpa() { return cgpa; }
+    public void setCgpa(double cgpa) { this.cgpa = cgpa; }
+}
+</file>
+
+<file path="result-service/src/main/java/com/example/result_service/model/ResultEntity.java">
+package com.example.result_service.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "results")
+public class ResultEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="student_name")
+    private String studentName;
+
+    @Column(name="sub1_mid") private Integer sub1Mid;
+    @Column(name="sub1_end") private Integer sub1End;
+    @Column(name="sub2_mid") private Integer sub2Mid;
+    @Column(name="sub2_end") private Integer sub2End;
+    @Column(name="sub3_mid") private Integer sub3Mid;
+    @Column(name="sub3_end") private Integer sub3End;
+    @Column(name="sub4_mid") private Integer sub4Mid;
+    @Column(name="sub4_end") private Integer sub4End;
+
+    @Column(name="avg_percentage") private Double avgPercentage;
+    @Column(name="cgpa") private Double cgpa;
+
+    @Column(name="created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    // Getters and setters (generate using IDE)
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
+
+    public Integer getSub1Mid() { return sub1Mid; }
+    public void setSub1Mid(Integer sub1Mid) { this.sub1Mid = sub1Mid; }
+    public Integer getSub1End() { return sub1End; }
+    public void setSub1End(Integer sub1End) { this.sub1End = sub1End; }
+
+    public Integer getSub2Mid() { return sub2Mid; }
+    public void setSub2Mid(Integer sub2Mid) { this.sub2Mid = sub2Mid; }
+    public Integer getSub2End() { return sub2End; }
+    public void setSub2End(Integer sub2End) { this.sub2End = sub2End; }
+
+    public Integer getSub3Mid() { return sub3Mid; }
+    public void setSub3Mid(Integer sub3Mid) { this.sub3Mid = sub3Mid; }
+    public Integer getSub3End() { return sub3End; }
+    public void setSub3End(Integer sub3End) { this.sub3End = sub3End; }
+
+    public Integer getSub4Mid() { return sub4Mid; }
+    public void setSub4Mid(Integer sub4Mid) { this.sub4Mid = sub4Mid; }
+    public Integer getSub4End() { return sub4End; }
+    public void setSub4End(Integer sub4End) { this.sub4End = sub4End; }
+
+    public Double getAvgPercentage() { return avgPercentage; }
+    public void setAvgPercentage(Double avgPercentage) { this.avgPercentage = avgPercentage; }
+
+    public Double getCgpa() { return cgpa; }
+    public void setCgpa(Double cgpa) { this.cgpa = cgpa; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}
+</file>
+
+<file path="result-service/src/main/java/com/example/result_service/repository/ResultRepository.java">
+package com.example.result_service.repository;
+
+import com.example.result_service.model.ResultEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ResultRepository extends JpaRepository<ResultEntity, Long> {
+}
+</file>
+
+<file path="result-service/src/main/java/com/example/result_service/ResultServiceApplication.java">
+package com.example.result_service;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ResultServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ResultServiceApplication.class, args);
+    }
+}
+</file>
+
+<file path="result-service/src/main/java/com/example/result_service/service/ResultService.java">
+package com.example.result_service.service;
+
+import com.example.result_service.dto.ResultRequest;
+import com.example.result_service.dto.ResultResponse;
+import com.example.result_service.model.ResultEntity;
+import com.example.result_service.repository.ResultRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class ResultService {
+    private final ResultRepository repo;
+
+    public ResultService(ResultRepository repo) { this.repo = repo; }
+
+    private double weighted(int mid, int end) {
+        // both mid and end are out of 50
+        return (mid / 50.0) * 30.0 + (end / 50.0) * 70.0; // result in 0..100
+    }
+
+    @Transactional
+    public ResultResponse save(ResultRequest req) {
+        double s1 = weighted(req.getSub1_mid(), req.getSub1_end());
+        double s2 = weighted(req.getSub2_mid(), req.getSub2_end());
+        double s3 = weighted(req.getSub3_mid(), req.getSub3_end());
+        double s4 = weighted(req.getSub4_mid(), req.getSub4_end());
+
+        double avg = (s1 + s2 + s3 + s4) / 4.0;
+        double cgpa = avg / 10.0;
+
+        ResultEntity entity = new ResultEntity();
+        entity.setStudentName(req.getStudent_name());
+        entity.setSub1Mid(req.getSub1_mid()); entity.setSub1End(req.getSub1_end());
+        entity.setSub2Mid(req.getSub2_mid()); entity.setSub2End(req.getSub2_end());
+        entity.setSub3Mid(req.getSub3_mid()); entity.setSub3End(req.getSub3_end());
+        entity.setSub4Mid(req.getSub4_mid()); entity.setSub4End(req.getSub4_end());
+        entity.setAvgPercentage(round2(avg));
+        entity.setCgpa(round2(cgpa));
+
+        ResultEntity saved = repo.save(entity);
+        return new ResultResponse(saved.getId(), round2(s1), round2(s2), round2(s3), round2(s4), round2(avg), round2(cgpa));
+    }
+
+    private double round2(double v) {
+        return Math.round(v * 100.0) / 100.0;
+    }
+}
+</file>
+
+<file path="result-service/src/main/resources/application.properties">
+spring.application.name=result-service
+# MySQL - using the new DB and user you created
+spring.datasource.url=jdbc:mysql://localhost:3307/college_results_spring?useSSL=false&serverTimezone=UTC
+spring.datasource.username=spring_user
+spring.datasource.password=SpringPass123!
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# server port
+server.port=8080
+</file>
+
+<file path="result-service/src/test/java/com/example/result_service/ResultServiceApplicationTests.java">
+package com.example.result_service;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class ResultServiceApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+</file>
+
+</files>
